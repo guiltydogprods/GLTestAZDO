@@ -16,7 +16,7 @@ public:
 		, m_end(m_ptr + size)
 	{}
 
-	static unsigned int alignedSize(size_t size) 
+	static size_t alignedSize(size_t size) 
 	{
 		return (size + (Alignment - 1)) & ~(Alignment - 1);
 	}
