@@ -1,7 +1,8 @@
 // GLTestAZDO.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
-
+#include "ScopeStackAllocator.h"
+#include "FIle.h"
 void error_callback(int error, const char* description)
 {
 	fputs(description, stderr);
@@ -13,8 +14,33 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+struct Foo
+{
+	static int count;
+	int num;
+	Foo() : num(count++) { printf("Foo ctor %d\n", num); }
+	~Foo() { printf("Foo dtor %d\n", num); }
+};
+int Foo::count;
+uint32_t File::ms_count = 0;
+
+uint8_t test_mem[65536];
+
 int _tmain(int argc, _TCHAR* argv[])
 {
+
+	LinearAllocator allocator(test_mem, sizeof(test_mem));
+
+	{
+		ScopeStack outerScope(allocator);
+		Foo* foo0 = outerScope.newObject<Foo>();
+		{
+			ScopeStack innerScope(allocator);
+			Foo* foo1 = innerScope.newObject<Foo>();
+			Foo* foo2 = innerScope.newObject<Foo>();
+			File *data1 = innerScope.newObject<File>(innerScope, "data.txt", "rb");
+		}
+	}
 
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
