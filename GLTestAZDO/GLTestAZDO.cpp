@@ -3,6 +3,8 @@
 #include "stdafx.h"
 #include "ScopeStackAllocator.h"
 #include "FIle.h"
+#include "Renderer/VertexBuffer.h"
+
 void error_callback(int error, const char* description)
 {
 	fputs(description, stderr);
@@ -41,6 +43,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			File *data1 = innerScope.newObject<File>(innerScope, "data.txt", "rb");
 		}
 	}
+	ScopeStack initScope(allocator);
 
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
@@ -77,6 +80,75 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	glfwSetKeyCallback(window, key_callback);
 
+	static VertexElement positionElement = { 0, 3, GL_FLOAT, GL_FALSE, 0 };
+	static VertexElement normalElement = { 1, 3, GL_FLOAT, GL_FALSE, 12 };
+	static VertexElement texCoordElement = { 2, 2, GL_FLOAT, GL_FALSE, 24 };
+
+	float vertices[] = 
+	{
+		-1.0f, -1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+	};
+
+	float normals[] = 
+	{
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+		0.0f, 1.0f, 0.0f,
+	};
+
+	float uvs[] = 
+	{
+		0.0f, 0.0f,
+		1.0f, 0.0f,
+		0.0f, 1.0f,
+		1.0f, 1.0f,
+	};
+
+	uint32_t indices[] = 
+	{
+		0, 1, 2, 2, 1, 3,
+	};
+
+/*
+	ion::MaterialPtr pMaterial = new ion::Material();
+	pMaterial->SetName("TestMtl");
+	pMaterial->SetDiffuseColor(1.0f, 1.0f, 1.0f);
+	{
+		ion::TexturePtr pTexture = ion::TextureManager::Get()->Find("stone34.png");
+		uint32_t count = pTexture->GetReferences();
+		printf("Teture reference counts = %d\n", count);
+		//	ion::TexturePtr pTexture = ion::TextureManager::Get()->Find("TableTop_1024px.png");
+		pMaterial->SetDiffuseMap(pTexture);
+		pMaterial->BindToGL();
+	}
+*/
+//	m_pRenderable = new ion::Renderable();
+//	m_pRenderable->SetMaterial(pMaterial);
+//	m_pRenderable->SetNumVertices(6);
+//	ion::VertexBuffer* vertexBuffer = m_pRenderable->GetVertexBuffer();
+	
+	VertexBuffer *vertexBuffer = initScope.newObject<VertexBuffer>();
+	vertexBuffer->SetNumStreams(1);
+	vertexBuffer->AddElement(0, positionElement);
+	vertexBuffer->AddElement(0, normalElement);
+	vertexBuffer->AddElement(0, texCoordElement);
+	vertexBuffer->SetNumVertices(6);
+	vertexBuffer->SetData(0, positionElement, vertices, 12);
+	vertexBuffer->SetData(0, normalElement, normals, 12);
+	vertexBuffer->SetData(0, texCoordElement, uvs, 8);
+	vertexBuffer->Write();
+
+//	IndexBuffer *indexBuffer = initScope.s<IndexBuffer>(6, GL_UNSIGNED_INT);
+	/*
+	ion::IndexBuffer* indexBuffer = ion::IndexBuffer::Create(6, ion::k32Bit);
+	indexBuffer->WriteIndices(indices);
+	indexBuffer->Upload();
+	m_pRenderable->SetIndexBuffer(indexBuffer);
+	*/
 	while (!glfwWindowShouldClose(window))
 	{
 		float ratio;
