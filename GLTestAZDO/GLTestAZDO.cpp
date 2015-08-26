@@ -5,6 +5,69 @@
 #include "FIle.h"
 #include "Renderer/VertexBuffer.h"
 
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
+struct Vertex
+{
+	float		position[3];
+	float		normal[3];
+	uint32_t	colour;
+};
+
+GLuint	g_vertexBufferName;
+GLuint	g_vertexArrayObject;
+GLuint  g_indexBufferName;
+
+void Initialize()
+{
+	Vertex vertices[] =
+	{
+		-1.0f, -1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0xff0000ff,
+		1.0f, -1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0x00ff00ff,
+		-1.0f, 1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0x0000ffff,
+		1.0f, 1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0xffffffff,
+	};
+
+	uint32_t indices[] =
+	{
+		0, 1, 2, 2, 1, 3,
+	};
+
+	glGenBuffers(1, &g_vertexBufferName);
+	glBindBuffer(GL_ARRAY_BUFFER, g_vertexBufferName);
+	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenVertexArrays(1, &g_vertexArrayObject);
+	glBindVertexArray(g_vertexArrayObject);
+
+	glBindBuffer(GL_ARRAY_BUFFER, g_vertexBufferName);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(12));
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(24));
+	glEnableVertexAttribArray(2);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	
+	glBindVertexArray(0);
+
+	glGenBuffers(1, &g_indexBufferName);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indexBufferName);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+}
+
+void Update()
+{
+
+}
+
+void Render()
+{
+
+}
+
 void error_callback(int error, const char* description)
 {
 	fputs(description, stderr);
@@ -16,6 +79,7 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 		glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+/*
 struct Foo
 {
 	static int count;
@@ -27,10 +91,10 @@ int Foo::count;
 uint32_t File::ms_count = 0;
 
 uint8_t test_mem[65536];
-
+*/
 int _tmain(int argc, _TCHAR* argv[])
 {
-
+	/*
 	LinearAllocator allocator(test_mem, sizeof(test_mem));
 
 	{
@@ -44,7 +108,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 	}
 	ScopeStack initScope(allocator);
-
+*/
 	if (!glfwInit())
 		exit(EXIT_FAILURE);
 
@@ -78,79 +142,14 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
 
+	Initialize();
+
 	glfwSetKeyCallback(window, key_callback);
 
-	static VertexElement positionElement = { 0, 3, GL_FLOAT, GL_FALSE, 0 };
-	static VertexElement normalElement = { 1, 3, GL_FLOAT, GL_FALSE, 12 };
-	static VertexElement texCoordElement = { 2, 2, GL_FLOAT, GL_FALSE, 24 };
-
-	float vertices[] = 
-	{
-		-1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		-1.0f, 1.0f, 0.0f,
-		1.0f, 1.0f, 0.0f,
-	};
-
-	float normals[] = 
-	{
-		0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f,
-	};
-
-	float uvs[] = 
-	{
-		0.0f, 0.0f,
-		1.0f, 0.0f,
-		0.0f, 1.0f,
-		1.0f, 1.0f,
-	};
-
-	uint32_t indices[] = 
-	{
-		0, 1, 2, 2, 1, 3,
-	};
-
-/*
-	ion::MaterialPtr pMaterial = new ion::Material();
-	pMaterial->SetName("TestMtl");
-	pMaterial->SetDiffuseColor(1.0f, 1.0f, 1.0f);
-	{
-		ion::TexturePtr pTexture = ion::TextureManager::Get()->Find("stone34.png");
-		uint32_t count = pTexture->GetReferences();
-		printf("Teture reference counts = %d\n", count);
-		//	ion::TexturePtr pTexture = ion::TextureManager::Get()->Find("TableTop_1024px.png");
-		pMaterial->SetDiffuseMap(pTexture);
-		pMaterial->BindToGL();
-	}
-*/
-//	m_pRenderable = new ion::Renderable();
-//	m_pRenderable->SetMaterial(pMaterial);
-//	m_pRenderable->SetNumVertices(6);
-//	ion::VertexBuffer* vertexBuffer = m_pRenderable->GetVertexBuffer();
-	
-	VertexBuffer *vertexBuffer = initScope.newObject<VertexBuffer>();
-	vertexBuffer->SetNumStreams(1);
-	vertexBuffer->AddElement(0, positionElement);
-	vertexBuffer->AddElement(0, normalElement);
-	vertexBuffer->AddElement(0, texCoordElement);
-	vertexBuffer->SetNumVertices(6);
-	vertexBuffer->SetData(0, positionElement, vertices, 12);
-	vertexBuffer->SetData(0, normalElement, normals, 12);
-	vertexBuffer->SetData(0, texCoordElement, uvs, 8);
-	vertexBuffer->Write();
-
-//	IndexBuffer *indexBuffer = initScope.s<IndexBuffer>(6, GL_UNSIGNED_INT);
-	/*
-	ion::IndexBuffer* indexBuffer = ion::IndexBuffer::Create(6, ion::k32Bit);
-	indexBuffer->WriteIndices(indices);
-	indexBuffer->Upload();
-	m_pRenderable->SetIndexBuffer(indexBuffer);
-	*/
 	while (!glfwWindowShouldClose(window))
 	{
+		Update();
+		Render();
 		float ratio;
 		int width, height;
 
