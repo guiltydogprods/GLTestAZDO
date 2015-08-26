@@ -3,6 +3,8 @@
 #include "stdafx.h"
 #include "ScopeStackAllocator.h"
 #include "FIle.h"
+#include "Math/FMath.h"
+#include "Renderer/Camera.h"
 #include "Renderer/VertexBuffer.h"
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
@@ -17,6 +19,10 @@ struct Vertex
 GLuint	g_vertexBufferName;
 GLuint	g_vertexArrayObject;
 GLuint  g_indexBufferName;
+
+Camera *g_pCamera = nullptr;
+uint32_t g_screenWidth = 1280;
+uint32_t g_screenHeight = 720;
 
 void Initialize()
 {
@@ -56,6 +62,12 @@ void Initialize()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indexBufferName);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	g_pCamera = new Camera(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
+	g_pCamera->LookAt(Point(0.0f, 0.0f, 5.0f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	g_pCamera->Update();
+
+	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 }
 
 void Update()
@@ -63,9 +75,24 @@ void Update()
 
 }
 
-void Render()
+void Render(GLFWwindow *window)
 {
+	glMatrixMode(GL_PROJECTION);
+	glLoadMatrixf((float*)&g_pCamera->GetProjectionMatrix());
+	glMatrixMode(GL_MODELVIEW);
+	Matrix44 modelMatrix;
+	modelMatrix.SetRotation(Deg2Rad((float)glfwGetTime() * 50.f), Vector(0.0f, 0.0f, 1.0f));
+	Matrix44 modelViewMatrix = g_pCamera->GetViewMatrix() * modelMatrix;
+	glLoadMatrixf((float*)&modelViewMatrix);
 
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glBindVertexArray(g_vertexArrayObject);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indexBufferName);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+
+	glfwSwapBuffers(window);
+	glfwPollEvents();
 }
 
 void error_callback(int error, const char* description)
@@ -114,7 +141,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	glfwSetErrorCallback(error_callback);
 
-	GLFWwindow* window = glfwCreateWindow(1920, 1080, "GL Test AZDO", NULL, NULL);
+	GLFWwindow* window = glfwCreateWindow(g_screenWidth, g_screenHeight, "GL Test AZDO", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -149,34 +176,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	while (!glfwWindowShouldClose(window))
 	{
 		Update();
-		Render();
-		float ratio;
-		int width, height;
-
-		glfwGetFramebufferSize(window, &width, &height);
-		ratio = width / (float)height;
-
-		glViewport(0, 0, width, height);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glMatrixMode(GL_PROJECTION);
-		glLoadIdentity();
-		glOrtho(-ratio, ratio, -1.f, 1.f, 1.f, -1.f);
-		glMatrixMode(GL_MODELVIEW);
-		glLoadIdentity();
-		glRotatef((float)glfwGetTime() * 50.f, 0.f, 0.f, 1.f);
-
-		glBegin(GL_TRIANGLES);
-		glColor3f(1.f, 0.f, 0.f);
-		glVertex3f(-0.6f, -0.4f, 0.f);
-		glColor3f(0.f, 1.f, 0.f);
-		glVertex3f(0.6f, -0.4f, 0.f);
-		glColor3f(0.f, 0.f, 1.f);
-		glVertex3f(0.f, 0.6f, 0.f);
-		glEnd();
-
-		glfwSwapBuffers(window);
-		glfwPollEvents();
+		Render(window);
 	}
 
 	glfwDestroyWindow(window);
