@@ -154,7 +154,6 @@
     <ClInclude Include="Math\Quat.h" />
     <ClInclude Include="Math\Vector.h" />
     <ClInclude Include="Math\Vector4.h" />
-    <ClInclude Include="NewFile.h" />
     <ClInclude Include="Renderer\Camera.h" />
     <ClInclude Include="Renderer\Frustum.h" />
     <ClInclude Include="Renderer\Shader.h" />

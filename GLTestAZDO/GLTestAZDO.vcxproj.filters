@@ -71,9 +71,6 @@
     <ClInclude Include="Renderer\Shader.h">
       <Filter>Source Files\Renderer</Filter>
     </ClInclude>
-    <ClInclude Include="NewFile.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="System\File.h">
       <Filter>Source Files\System</Filter>
     </ClInclude>
