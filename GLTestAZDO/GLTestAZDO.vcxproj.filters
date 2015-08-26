@@ -18,6 +18,12 @@
     <Filter Include="Source Files\System">
       <UniqueIdentifier>{286b6f16-40f2-48a9-b210-30e656df7831}</UniqueIdentifier>
     </Filter>
+    <Filter Include="NewFilter1">
+      <UniqueIdentifier>{1c2c78d1-d940-4101-8131-852dbe377486}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Shaders">
+      <UniqueIdentifier>{a4784df8-d238-413b-9418-bd887cd90996}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -30,9 +36,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="ScopeStackAllocator.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="File.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="Renderer\VertexBuffer.h">
@@ -64,6 +67,15 @@
     </ClInclude>
     <ClInclude Include="Math\Quat.h">
       <Filter>Source Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Shader.h">
+      <Filter>Source Files\Renderer</Filter>
+    </ClInclude>
+    <ClInclude Include="NewFile.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="System\File.h">
+      <Filter>Source Files\System</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -103,5 +115,19 @@
     <ClCompile Include="Math\Quat.cpp">
       <Filter>Source Files\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Renderer\Shader.cpp">
+      <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="System\File.cpp">
+      <Filter>Source Files\System</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\blinnphong.fs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="Shaders\blinnphong.vs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

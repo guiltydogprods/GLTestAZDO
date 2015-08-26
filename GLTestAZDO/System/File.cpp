@@ -6,33 +6,10 @@
  *  Copyright 2006 __MyCompanyName__. All rights reserved.
  *
  */
-
-#include <stdio.h>
+#include "stdafx.h"
 #include "File.h"
 
-#ifdef __APPLE__
-#include "libgen.h"
-#include "unistd.h"
-#elif WIN32
 #include "direct.h"
-#elif PSVITA
-
-#else
-#include "unistd.h"
-#endif
-
-namespace ion
-{
-	void SetCwd( const char* filename )
-	{
-#if defined(__APPLE__)
-		chdir(filename);
-#elif WIN32
-		_chdir(filename);
-#else
-
-#endif		
-	}
 	
 	char* FileRead(const char* filename, const char* filetype) 
 	{
@@ -40,7 +17,7 @@ namespace ion
 		char *content = NULL;
 		size_t count = 0;
 			
-		if(filename != NULL) 
+		if (filename != NULL) 
 		{
 			fp = fopen(filename, filetype);
 			
@@ -61,4 +38,3 @@ namespace ion
 		}
 		return content;
 	}
-}; //namespace ion
