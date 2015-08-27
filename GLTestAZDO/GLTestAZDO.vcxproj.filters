@@ -24,6 +24,9 @@
     <Filter Include="Source Files\Shaders">
       <UniqueIdentifier>{a4784df8-d238-413b-9418-bd887cd90996}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Resource">
+      <UniqueIdentifier>{699bdff7-2fa4-4393-a4da-f1447dd72c15}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -74,6 +77,12 @@
     <ClInclude Include="System\File.h">
       <Filter>Source Files\System</Filter>
     </ClInclude>
+    <ClInclude Include="Resource\MeshResource.h">
+      <Filter>Source Files\Resource</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer\Mesh.h">
+      <Filter>Source Files\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -117,6 +126,12 @@
     </ClCompile>
     <ClCompile Include="System\File.cpp">
       <Filter>Source Files\System</Filter>
+    </ClCompile>
+    <ClCompile Include="Resource\MeshResource.cpp">
+      <Filter>Source Files\Resource</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer\Mesh.cpp">
+      <Filter>Source Files\Renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

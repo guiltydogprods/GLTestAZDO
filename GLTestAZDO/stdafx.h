@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <tchar.h>
+#include <vector>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
