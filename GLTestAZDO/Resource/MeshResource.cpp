@@ -140,25 +140,25 @@
 		RenderableInfo* rendInfo = (RenderableInfo*)(ptr + sizeof(MeshInfo));
 		
 		uint32_t numRenderables = info->numRenderables;
-//		Renderable* renderables = new Renderable [numRenderables];
+		Renderable* renderables = new Renderable [numRenderables];
 		
 		uint8_t* meshData = (uint8_t*)((uint8_t*)rendInfo + sizeof(RenderableInfo) * numRenderables);
 		for (uint32_t rend = 0; rend < numRenderables; ++rend)
 		{
-//			CRVertexBuffer* srcVertexBuffer = (ion::CRVertexBuffer*)meshData;
+			CRVertexBuffer* srcVertexBuffer = (CRVertexBuffer*)meshData;
 			uint32_t numVertices = rendInfo[rend].numVertices;
 			uint32_t verticesSize = sizeof(CRVertexBuffer) + srcVertexBuffer->m_streams[0].m_stride * numVertices;
 			uint32_t numIndices = rendInfo[rend].numIndices;
 			uint32_t indicesSize = sizeof(uint32_t) * numIndices;
 			
 			Renderable* pRenderable = &renderables[rend];
-			MaterialPtr pMaterial = MaterialManager::Get()->Find(rendInfo[rend].materialHash);
-			pRenderable->SetMaterial(pMaterial);
+//			MaterialPtr pMaterial = MaterialManager::Get()->Find(rendInfo[rend].materialHash);
+//			pRenderable->SetMaterial(pMaterial);
 			pRenderable->SetNumVertices(numVertices);
 			VertexBuffer* vertexBuffer = pRenderable->GetVertexBuffer();
 			uint32_t numStreams = srcVertexBuffer->m_numStreams;
 			vertexBuffer->SetNumStreams(numStreams);
-			for (int i = 0; i < numStreams; ++i) {
+			for (uint32_t i = 0; i < numStreams; ++i) {
 				uint32_t numElements = (uint32_t)srcVertexBuffer->m_streams[i].m_numElements;
 				for (uint32_t j = 0; j < numElements; ++j) {
 					VertexElement newElem;
@@ -172,7 +172,8 @@
 				}
 			}
 			vertexBuffer->SetNumVertices(numVertices);
-			for (int i = 0; i < numStreams; ++i) {
+			for (uint32_t i = 0; i < numStreams; ++i) 
+			{
 				uint8_t* vertexData = (uint8_t*)srcVertexBuffer + sizeof(CRVertexBuffer);	//(uint8_t*)info + srcVertexBuffer->m_streams[i].m_dataOffset;
 				uint32_t size = (numVertices * vertexBuffer->GetVertexStreams()[i].m_stride) / 4;
 				(uint32_t*)vertexData, size;
@@ -181,13 +182,13 @@
 			vertexBuffer->Write();
 			
 			uint32_t* indices = (uint32_t*)((uint8_t*)srcVertexBuffer + verticesSize);
-			IndexBuffer* indexBuffer = IndexBuffer::Create(numIndices, k32Bit);
-			indices, numIndices;
-			indexBuffer->WriteIndices(indices);
-			indexBuffer->Upload();
+//			IndexBuffer* indexBuffer = IndexBuffer::Create(numIndices, k32Bit);
+//			indices, numIndices;
+//			indexBuffer->WriteIndices(indices);
+//			indexBuffer->Upload();
 //			pRenderable->SetNumIndices(rendInfo[rend].numIndices);
 //			pRenderable->WriteIndices(indices, rendInfo[rend].numIndices * sizeof(uint32_t));
-			pRenderable->SetIndexBuffer(indexBuffer);
+//			pRenderable->SetIndexBuffer(indexBuffer);
 			meshData = meshData + verticesSize + indicesSize;
 		}
 		ptr = (uint8_t*)meshData;
@@ -209,4 +210,4 @@
 			scene.push_back(m_models[i]);
 		}
 	}
-	*.
+	*/

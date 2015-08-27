@@ -49,16 +49,16 @@
 	Renderable::Renderable()
 	{
 		//		m_flags = 0;
-		m_vertexBuffer = VertexBuffer::Create();
-		m_indexBuffer = 0;
+//		m_vertexBuffer = VertexBuffer::Create();
+//		m_indexBuffer = 0;
 	}
 	
 	Renderable::~Renderable()
 	{
 		//CLR: We should probably delete our vertex buffer here too.
-		if (m_indexBuffer) {
-			m_indexBuffer->Destroy();
-		}
+//		if (m_indexBuffer) {
+//			m_indexBuffer->Destroy();
+//		}
 	}
 	
 	Model::Model()
@@ -74,10 +74,10 @@
 	
 	void Model::AllocateChildren(uint32_t childCount)
 	{
-		m_numChildren = childCount;
-		if (childCount > 0) {
-			m_children = new ion::Model [childCount];			
-		}
+//		m_numChildren = childCount;
+//		if (childCount > 0) {
+//			m_children = new ion::Model [childCount];			
+//		}
 	}
 	
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
