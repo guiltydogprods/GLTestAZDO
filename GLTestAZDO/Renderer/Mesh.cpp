@@ -49,7 +49,7 @@
 	Renderable::Renderable()
 	{
 		//		m_flags = 0;
-//		m_vertexBuffer = VertexBuffer::Create();
+		m_vertexBuffer = new VertexBuffer();	// ::Create();
 //		m_indexBuffer = 0;
 	}
 	

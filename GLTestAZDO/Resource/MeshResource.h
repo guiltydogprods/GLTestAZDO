@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "ScopeStackAllocator.h"
 #include "Math/Matrix44.h"
 
 	class Model;
@@ -96,7 +97,7 @@
 	class MeshResource
 	{
 	public:
-		MeshResource(const std::string filename);
+		MeshResource(const std::string filename, LinearAllocator& allocator);
 		~MeshResource();
 
 //		void GetModels(std::vector<Model*>& scene);
@@ -107,6 +108,7 @@
 		void LoadMeshChunk(ChunkId *chunk);
 		uint8_t* LoadMeshChunkRecursive(uint8_t* ptr, Model* pModel);
 
-		
-//		std::vector<Model*>	m_models;
+		GLuint	m_vertexArrayObject;
+		GLuint	m_vertexBuffer;
+		GLuint  m_indexBuffer;
 	};

@@ -6,8 +6,9 @@
 #include "Renderer/Camera.h"
 #include "Renderer/Shader.h"
 #include "Renderer/VertexBuffer.h"
+#include "Resource/MeshResource.h"
 
-//#define CHECK_ERRORS
+#define CHECK_ERRORS
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
@@ -132,6 +133,13 @@ void Initialize()
 	CheckGLError();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	CheckGLError();
+	
+	size_t memorySize = 1024 * 1024 * 32;
+	uint8_t *memoryBlock = static_cast<uint8_t *>(_aligned_malloc(memorySize, 32));
+	LinearAllocator allocator(memoryBlock, memorySize);
+
+	ScopeStack initStack(allocator);
+	MeshResource *mesh = initStack.newObject<MeshResource>("assets/TempGround.s3d", allocator);
 
 	g_pShader = new Shader(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl");
 	CheckGLError();

@@ -11,17 +11,22 @@
 #include "Renderer/Mesh.h"
 #include "System/System.h"
 
-	MeshResource::MeshResource(const std::string filename)
+#define BUFFER_OFFSET(i) ((char *)NULL + (i))
+
+void CheckGLError();
+
+	MeshResource::MeshResource(const std::string filename, LinearAllocator& allocator)
 	{
+		ScopeStack tempStack(allocator);
+
 		std::string fullpath = /*ion::System::GetResourcePath() +*/ filename;
 
 		FILE *fptr =  fopen(fullpath.c_str(), "rb");
 		
 		fseek(fptr, 0L, SEEK_END);
-		uint32_t len = (uint32_t)ftell(fptr);
+		uint64_t len = (uint64_t)ftell(fptr);
 		fseek(fptr, 0L, SEEK_SET);
-		//	uint8_t *buffer = (uint8_t*)malloc(len);
-		uint8_t *buffer = new uint8_t [len];
+		uint8_t *buffer = static_cast<uint8_t *>(tempStack.alloc(len));
 		fread(buffer, len, 1, fptr);
 		fclose(fptr);
 		
@@ -158,9 +163,28 @@
 			VertexBuffer* vertexBuffer = pRenderable->GetVertexBuffer();
 			uint32_t numStreams = srcVertexBuffer->m_numStreams;
 			vertexBuffer->SetNumStreams(numStreams);
-			for (uint32_t i = 0; i < numStreams; ++i) {
+			for (uint32_t i = 0; i < numStreams; ++i) 
+			{
+				uint8_t* vertexData = (uint8_t*)srcVertexBuffer + sizeof(CRVertexBuffer);
+				uint16_t stride = srcVertexBuffer->m_streams[0].m_stride;
+				glGenBuffers(1, &m_vertexBuffer);
+				CheckGLError();
+				glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+				CheckGLError();
+				glBufferData(GL_ARRAY_BUFFER, numVertices * stride, vertexData, GL_STATIC_DRAW);
+				CheckGLError();
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				CheckGLError();
+
+				glGenVertexArrays(1, &m_vertexArrayObject);
+				CheckGLError();
+				glBindVertexArray(m_vertexArrayObject);
+				CheckGLError();
+				glBindBuffer(GL_ARRAY_BUFFER, m_vertexBuffer);
+				CheckGLError();
 				uint32_t numElements = (uint32_t)srcVertexBuffer->m_streams[i].m_numElements;
-				for (uint32_t j = 0; j < numElements; ++j) {
+				for (uint32_t j = 0; j < numElements; ++j) 
+				{
 					VertexElement newElem;
 					//CRVertexElement (from data file) has an 8 bit offset , VertexElement has a 32bit offset, due to PS3 using offset into Video memory
 					newElem.m_index = srcVertexBuffer->m_streams[i].m_elements[j].m_index;
@@ -168,15 +192,20 @@
 					newElem.m_type = srcVertexBuffer->m_streams[i].m_elements[j].m_type;
 					newElem.m_normalized = srcVertexBuffer->m_streams[i].m_elements[j].m_normalized;
 					newElem.m_offset = (uint32_t)srcVertexBuffer->m_streams[i].m_elements[j].m_offset;
-					vertexBuffer->AddElement(i, newElem);
+					glVertexAttribPointer(newElem.m_index, newElem.m_size, GL_FLOAT, GL_FALSE, stride, BUFFER_OFFSET(newElem.m_offset));
+					CheckGLError();
+					glEnableVertexAttribArray(newElem.m_index);
+					CheckGLError();
 				}
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+				CheckGLError();
 			}
 			vertexBuffer->SetNumVertices(numVertices);
 			for (uint32_t i = 0; i < numStreams; ++i) 
 			{
 				uint8_t* vertexData = (uint8_t*)srcVertexBuffer + sizeof(CRVertexBuffer);	//(uint8_t*)info + srcVertexBuffer->m_streams[i].m_dataOffset;
 				uint32_t size = (numVertices * vertexBuffer->GetVertexStreams()[i].m_stride) / 4;
-				(uint32_t*)vertexData, size;
+//				(uint32_t*)vertexData, size;
 				vertexBuffer->SetData(i, vertexData);
 			}
 			vertexBuffer->Write();
@@ -193,10 +222,10 @@
 		}
 		ptr = (uint8_t*)meshData;
 		(uint32_t*)&info->worldMatrix, 16;
-		pModel->SetWorldMatrix(info->worldMatrix);
-		pModel->AddRenderables(numRenderables, renderables);
+//		pModel->SetWorldMatrix(info->worldMatrix);
+//		pModel->AddRenderables(numRenderables, renderables);
 		uint32_t numChildren = info->numChildren;
-		pModel->AllocateChildren(numChildren);
+//		pModel->AllocateChildren(numChildren);
 		for (uint32_t i = 0; i < numChildren; ++i) {
 			Model* pChild = nullptr;	// pModel->GetChild(i);
 			ptr = LoadMeshChunkRecursive(ptr, pChild);
