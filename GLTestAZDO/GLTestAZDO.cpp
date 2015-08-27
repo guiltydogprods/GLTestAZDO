@@ -7,6 +7,8 @@
 #include "Renderer/Shader.h"
 #include "Renderer/VertexBuffer.h"
 
+//#define CHECK_ERRORS
+
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
 struct Uniforms
@@ -36,14 +38,14 @@ struct errtable
 
 errtable glErrorTable[] =
 {
-	{ GL_INVALID_ENUM, "GL_INVALID_ENUM", " given when an enumeration parameter contains an enum that is not allowed for that function.", },
-	{ GL_INVALID_VALUE, "GL_INVALID_VALUE", " given when a numerical parameter does not conform to the range requirements that the function places upon it.", },
-	{ GL_INVALID_OPERATION, "GL_INVALID_OPERATION", " given when the function in question cannot be executed because of state that has been set in the context.", },
-	//	{	GL_STACK_OVERFLOW,					"GL_STACK_OVERFLOW",	" given when a stack pushing operation causes a stack to overflow the limit of that stack's size.",},
-	//	{	GL_STACK_UNDERFLOW,					"GL_STACK_UNDERFLOW",	" given when a stack popping operation is given when the stack is already at its lowest point.",},
-	{ GL_OUT_OF_MEMORY, "GL_OUT_OF_MEMORY", " given when performing an operation that can allocate memory, when the memory in question cannot be allocated.", },
-	//	{	GL_TABLE_TOO_LARGE,					"GL_TABLE_TOO_LARGE",	"if the optional imaging subset (GL_ARB_imaging) is supported)",},
-	//	{	GL_INVALID_FRAMEBUFFER_OPERATION ,	"GL_INVALID_FRAMEBUFFER_OPERATION","GL_INVALID_FRAMEBUFFER_OPERATION",},
+	{ GL_INVALID_ENUM,						"GL_INVALID_ENUM", " given when an enumeration parameter contains an enum that is not allowed for that function.", },
+	{ GL_INVALID_VALUE,						"GL_INVALID_VALUE", " given when a numerical parameter does not conform to the range requirements that the function places upon it.", },
+	{ GL_INVALID_OPERATION,					"GL_INVALID_OPERATION", " given when the function in question cannot be executed because of state that has been set in the context.", },
+	{ GL_STACK_OVERFLOW,					"GL_STACK_OVERFLOW",	" given when a stack pushing operation causes a stack to overflow the limit of that stack's size.",},
+	{ GL_STACK_UNDERFLOW,					"GL_STACK_UNDERFLOW",	" given when a stack popping operation is given when the stack is already at its lowest point.",},
+	{ GL_OUT_OF_MEMORY,						"GL_OUT_OF_MEMORY", " given when performing an operation that can allocate memory, when the memory in question cannot be allocated.", },
+	{ GL_TABLE_TOO_LARGE,					"GL_TABLE_TOO_LARGE",	" if the optional imaging subset (GL_ARB_imaging) is supported)",},
+	{ GL_INVALID_FRAMEBUFFER_OPERATION ,	"GL_INVALID_FRAMEBUFFER_OPERATION","GL_INVALID_FRAMEBUFFER_OPERATION",},
 };
 
 const char *GLFindError(int32_t errcode)
@@ -59,7 +61,7 @@ const char *GLFindError(int32_t errcode)
 
 void CheckGLError()
 {
-#if 0		
+#if defined(CHECK_ERRORS)	
 	GLenum err;
 	err = glGetError();
 	if (err != GL_NO_ERROR)
@@ -75,16 +77,16 @@ void Initialize()
 	{
 		float		position[3];
 		float		normal[3];
-		float		color[4];
-//		uint32_t	color;
+		uint32_t	color;
 	};
 
-	Vertex vertices[] =
-	{
-		-1.0f, -1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f, 0.0f, 1.0f, //*/0xff0000ff,
-		1.0f, -1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0.0f, 1.0f, 0.0f, 1.0f, //*/0x00ff00ff,
-		-1.0f, 1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0.0f, 0.0f, 1.0f, 1.0f, //*/0x0000ffff,
-		1.0f, 1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		1.0f, 0.0f, 1.0f, 1.0f, //*/0xffffffff,
+	Vertex vertices[] = 
+	{	
+//		Position				Normal					Color (0xAABBGGRR)
+		-1.0f, -1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0xff0000ff,	
+		 1.0f, -1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0xff00ff00,	
+		-1.0f, 1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0xffff0000,
+		 1.0f, 1.0f, 0.0f,		0.0f, 1.0f, 0.0f,		0xffff00ff,
 	};
 
 	uint32_t indices[] =
@@ -93,27 +95,43 @@ void Initialize()
 	};
 
 	glGenBuffers(1, &g_vertexBufferName);
+	CheckGLError();
 	glBindBuffer(GL_ARRAY_BUFFER, g_vertexBufferName);
+	CheckGLError();
 	glBufferData(GL_ARRAY_BUFFER, 4 * sizeof(Vertex), vertices, GL_STATIC_DRAW);
+	CheckGLError();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 	glGenVertexArrays(1, &g_vertexArrayObject);
+	CheckGLError();
 	glBindVertexArray(g_vertexArrayObject);
+	CheckGLError();
 
 	glBindBuffer(GL_ARRAY_BUFFER, g_vertexBufferName);
+	CheckGLError();
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(0));
+	CheckGLError();
 	glEnableVertexAttribArray(0);
+	CheckGLError();
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(12));
+	CheckGLError();
 	glEnableVertexAttribArray(1);
-//	glVertexAttribPointer(2, 1, GL_UNSIGNED_INT_8_8_8_8, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(24));
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(Vertex), BUFFER_OFFSET(24));
+	CheckGLError();
+	glVertexAttribPointer(2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), BUFFER_OFFSET(24));
+	CheckGLError();
 	glEnableVertexAttribArray(2);
+	CheckGLError();
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	
+	CheckGLError();
+
 	glGenBuffers(1, &g_indexBufferName);
+	CheckGLError();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indexBufferName);
+	CheckGLError();
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+	CheckGLError();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+	CheckGLError();
 
 	g_pShader = new Shader(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl");
 	CheckGLError();
@@ -123,9 +141,6 @@ void Initialize()
 	CheckGLError();
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniforms), NULL, GL_DYNAMIC_DRAW);
 	CheckGLError();
-//	g_mvpMatrixLocation = glGetUniformLocation(g_pShader->GetProgram(), "mvp_matrix");
-//	CheckGLError();
-	//	m_parameters[kParamMVPMatrix] = ion::GfxDevice::Get()->GetUniformLocation(m_glslProgram, "g_mTransform");
 
 	g_pCamera = new Camera(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
 	g_pCamera->LookAt(Point(0.0f, 0.0f, 5.0f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
@@ -141,24 +156,22 @@ void Update()
 
 void Render(GLFWwindow *window)
 {
-//	glMatrixMode(GL_PROJECTION);
-//	glLoadMatrixf((float*)&g_pCamera->GetProjectionMatrix());
-//	glMatrixMode(GL_MODELVIEW);
-	Matrix44 modelMatrix;
-	modelMatrix.SetRotation(Deg2Rad((float)glfwGetTime() * 50.f), Vector(0.0f, 0.0f, 1.0f));
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	CheckGLError();
 	glUseProgram(g_pShader->GetProgram());
 	CheckGLError();
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, g_uniformsBuffer);
 	CheckGLError();
+
 	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
 		sizeof(Uniforms),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	CheckGLError();
 
+	Matrix44 modelMatrix;
+	modelMatrix.SetRotation(Deg2Rad((float)glfwGetTime() * 50.f), Vector(0.0f, 0.0f, 1.0f));
 	Matrix44 modelViewMatrix = g_pCamera->GetViewMatrix() * modelMatrix;
 
 	block->mvp_matrix = g_pCamera->GetProjectionMatrix() * g_pCamera->GetViewMatrix() * modelMatrix;
@@ -166,11 +179,16 @@ void Render(GLFWwindow *window)
 	CheckGLError();
 
 	glBindVertexArray(g_vertexArrayObject);
+	CheckGLError();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indexBufferName);
+	CheckGLError();
 	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+	CheckGLError();
 
 	glfwSwapBuffers(window);
+	CheckGLError();
 	glfwPollEvents();
+	CheckGLError();
 }
 
 void error_callback(int error, const char* description)
