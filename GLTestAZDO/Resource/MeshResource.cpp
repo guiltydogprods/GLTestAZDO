@@ -132,20 +132,18 @@ void CheckGLError();
 		MeshChunk *meshChunk = (MeshChunk *)chunk;
 		uint8_t *ptr = (uint8_t *)chunk + sizeof(MeshChunk);
 		
-		for (uint32_t i = 0; i < meshChunk->numMeshes; ++i) {
-			Model* pModel = nullptr;	// new Model();
-			ptr = LoadMeshChunkRecursive(ptr, pModel);
-//			m_models.push_back(pModel);
+		for (uint32_t i = 0; i < meshChunk->numMeshes; ++i) 
+		{
+			ptr = LoadMeshChunkRecursive(ptr);
 		}
 	}
 	
-	uint8_t* MeshResource::LoadMeshChunkRecursive(uint8_t* ptr, Model* pModel)
+	uint8_t* MeshResource::LoadMeshChunkRecursive(uint8_t* ptr)
 	{
 		MeshInfo *info = (MeshInfo *)ptr;
 		RenderableInfo* rendInfo = (RenderableInfo*)(ptr + sizeof(MeshInfo));
 		
 		uint32_t numRenderables = info->numRenderables;
-		Renderable* renderables = new Renderable [numRenderables];
 		
 		uint8_t* meshData = (uint8_t*)((uint8_t*)rendInfo + sizeof(RenderableInfo) * numRenderables);
 		for (uint32_t rend = 0; rend < numRenderables; ++rend)
@@ -153,16 +151,11 @@ void CheckGLError();
 			CRVertexBuffer* srcVertexBuffer = (CRVertexBuffer*)meshData;
 			uint32_t numVertices = rendInfo[rend].numVertices;
 			uint32_t verticesSize = sizeof(CRVertexBuffer) + srcVertexBuffer->m_streams[0].m_stride * numVertices;
-			uint32_t numIndices = rendInfo[rend].numIndices;
+			uint32_t numIndices = m_numIndices = rendInfo[rend].numIndices;
 			uint32_t indicesSize = sizeof(uint32_t) * numIndices;
 			
-			Renderable* pRenderable = &renderables[rend];
 //			MaterialPtr pMaterial = MaterialManager::Get()->Find(rendInfo[rend].materialHash);
-//			pRenderable->SetMaterial(pMaterial);
-			pRenderable->SetNumVertices(numVertices);
-			VertexBuffer* vertexBuffer = pRenderable->GetVertexBuffer();
 			uint32_t numStreams = srcVertexBuffer->m_numStreams;
-			vertexBuffer->SetNumStreams(numStreams);
 			for (uint32_t i = 0; i < numStreams; ++i) 
 			{
 				uint8_t* vertexData = (uint8_t*)srcVertexBuffer + sizeof(CRVertexBuffer);
@@ -200,43 +193,23 @@ void CheckGLError();
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
 				CheckGLError();
 			}
-			vertexBuffer->SetNumVertices(numVertices);
-			for (uint32_t i = 0; i < numStreams; ++i) 
-			{
-				uint8_t* vertexData = (uint8_t*)srcVertexBuffer + sizeof(CRVertexBuffer);	//(uint8_t*)info + srcVertexBuffer->m_streams[i].m_dataOffset;
-				uint32_t size = (numVertices * vertexBuffer->GetVertexStreams()[i].m_stride) / 4;
-//				(uint32_t*)vertexData, size;
-				vertexBuffer->SetData(i, vertexData);
-			}
-			vertexBuffer->Write();
-			
 			uint32_t* indices = (uint32_t*)((uint8_t*)srcVertexBuffer + verticesSize);
-//			IndexBuffer* indexBuffer = IndexBuffer::Create(numIndices, k32Bit);
-//			indices, numIndices;
-//			indexBuffer->WriteIndices(indices);
-//			indexBuffer->Upload();
-//			pRenderable->SetNumIndices(rendInfo[rend].numIndices);
-//			pRenderable->WriteIndices(indices, rendInfo[rend].numIndices * sizeof(uint32_t));
-//			pRenderable->SetIndexBuffer(indexBuffer);
+			glGenBuffers(1, &m_indexBuffer);
+			CheckGLError();
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_indexBuffer);
+			CheckGLError();
+			glBufferData(GL_ELEMENT_ARRAY_BUFFER, numIndices * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+			CheckGLError();
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			CheckGLError();
 			meshData = meshData + verticesSize + indicesSize;
 		}
 		ptr = (uint8_t*)meshData;
 		(uint32_t*)&info->worldMatrix, 16;
 //		pModel->SetWorldMatrix(info->worldMatrix);
-//		pModel->AddRenderables(numRenderables, renderables);
 		uint32_t numChildren = info->numChildren;
-//		pModel->AllocateChildren(numChildren);
 		for (uint32_t i = 0; i < numChildren; ++i) {
-			Model* pChild = nullptr;	// pModel->GetChild(i);
-			ptr = LoadMeshChunkRecursive(ptr, pChild);
+			ptr = LoadMeshChunkRecursive(ptr);
 		}
 		return ptr;
 	}
-	/*
-	void MeshResource::GetModels(std::vector<ion::Model*>& scene)
-	{
-		for (int i = 0; i < m_models.size(); ++i) {
-			scene.push_back(m_models[i]);
-		}
-	}
-	*/

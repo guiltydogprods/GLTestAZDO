@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cassert>
 #include <utility>
+#include "System/System.h"
 
 class LinearAllocator {
 public:
@@ -24,8 +25,9 @@ public:
 	void* allocate(size_t size) 
 	{
 		size = alignedSize(size);
-		uint8_t *result = m_ptr += size;
-		assert(result + size <= m_end);
+		uint8_t *result = m_ptr;
+		m_ptr = m_ptr + size;
+//		AssertMsg((result + size) <= m_end, "Out of memory.");
 		return result;
 	}
 
@@ -66,6 +68,7 @@ private:
 
 	Finalizer *allocWithFinalizer(size_t size)
 	{
+		size_t alignedFinalizerSize = LinearAllocator::alignedSize(sizeof(Finalizer));
 		return (Finalizer*)m_alloc.allocate(size + LinearAllocator::alignedSize(sizeof(Finalizer)));
 	}
 
@@ -94,6 +97,7 @@ public:
 		// Placement construct object in space after finalizer. Do this before
 		// linking in the finalizer for this object so nested calls will be
 		// finalized after this object.
+		void *allocAddress = objectFromFinalizer(f);
 		T* result = new (objectFromFinalizer(f)) T(std::forward<Args>(params)...);
 
 		// Link this finalizer onto the chain.

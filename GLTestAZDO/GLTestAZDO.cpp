@@ -27,6 +27,7 @@ GLuint	g_uniformsBuffer;
 
 Camera *g_pCamera = nullptr;
 Shader *g_pShader = nullptr;
+MeshResource *g_pMesh = nullptr;
 uint32_t g_screenWidth = 1280;
 uint32_t g_screenHeight = 720;
 
@@ -139,7 +140,7 @@ void Initialize()
 	LinearAllocator allocator(memoryBlock, memorySize);
 
 	ScopeStack initStack(allocator);
-	MeshResource *mesh = initStack.newObject<MeshResource>("assets/TempGround.s3d", allocator);
+	g_pMesh = initStack.newObject<MeshResource>("assets/Donut.s3d", allocator);
 
 	g_pShader = new Shader(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl");
 	CheckGLError();
@@ -151,10 +152,11 @@ void Initialize()
 	CheckGLError();
 
 	g_pCamera = new Camera(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
-	g_pCamera->LookAt(Point(0.0f, 0.0f, 5.0f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	g_pCamera->LookAt(Point(0.0f, 0.75f, 1.25f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
 	g_pCamera->Update();
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
+	glEnable(GL_DEPTH_TEST);
 }
 
 void Update()
@@ -186,11 +188,12 @@ void Render(GLFWwindow *window)
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	CheckGLError();
 
-	glBindVertexArray(g_vertexArrayObject);
+//	glBindVertexArray(g_vertexArrayObject);
+	glBindVertexArray(g_pMesh->getVertexArrayObject());
 	CheckGLError();
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_indexBufferName);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_pMesh->getIndexBuffer());
 	CheckGLError();
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+	glDrawElements(GL_TRIANGLES, g_pMesh->getNumIndices(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 	CheckGLError();
 
 	glfwSwapBuffers(window);

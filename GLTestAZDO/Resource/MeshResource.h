@@ -102,13 +102,19 @@
 
 //		void GetModels(std::vector<Model*>& scene);
 //		inline ion::Model* GetModel()	{	return m_models[0];	}
+		GLuint getVertexArrayObject()	{	return m_vertexArrayObject; }
+		GLuint getIndexBuffer()			{	return m_indexBuffer;		}
+		GLuint getNumIndices()			{ return m_numIndices; }
+//		GLsizei getNumIndices()			{ return m_numIndices; }
 	private:
 		void LoadTextureChunk(ChunkId* chunk);
 		void LoadMaterialChunk(ChunkId *chunk);
 		void LoadMeshChunk(ChunkId *chunk);
-		uint8_t* LoadMeshChunkRecursive(uint8_t* ptr, Model* pModel);
+		uint8_t* LoadMeshChunkRecursive(uint8_t* ptr);
 
 		GLuint	m_vertexArrayObject;
 		GLuint	m_vertexBuffer;
 		GLuint  m_indexBuffer;
+		GLuint m_numIndices;
+//		GLsizei m_numIndices;
 	};
