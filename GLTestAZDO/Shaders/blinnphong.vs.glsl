@@ -8,7 +8,7 @@ layout(location = 2) in vec4 color;
 
 layout(std140) uniform constants
 {
-	mat4 mvp_matrix;
+	mat4 mv_matrix;
 	mat4 view_matrix;
 	mat4 proj_matrix;
 };
@@ -20,9 +20,10 @@ out VS_OUT
 
 void main(void)
 {
+    vec4 P = mv_matrix * vec4(position, 1.0);
 	vs_out.color = color;
 	// Calculate the clip-space position of each vertex
-	gl_Position = mvp_matrix * vec4(position, 1.0);
+	gl_Position = proj_matrix * P;
 }
 
 /*

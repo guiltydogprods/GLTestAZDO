@@ -14,9 +14,9 @@
 
 struct Uniforms
 {
-	Matrix44     mvp_matrix;
+	Matrix44    modelViewMatrix;
 //	vmath::mat4     view_matrix;
-//	vmath::mat4     proj_matrix;
+	Matrix44	projectoinMatrix;
 };
 
 GLuint	g_vertexBufferName;
@@ -184,7 +184,8 @@ void Render(GLFWwindow *window)
 	modelMatrix.SetRotation(Deg2Rad((float)glfwGetTime() * 50.f), Vector(0.0f, 0.0f, 1.0f));
 	Matrix44 modelViewMatrix = g_pCamera->GetViewMatrix() * modelMatrix;
 
-	block->mvp_matrix = g_pCamera->GetProjectionMatrix() * g_pCamera->GetViewMatrix() * modelMatrix;
+	block->modelViewMatrix = modelViewMatrix;
+	block->projectoinMatrix = g_pCamera->GetProjectionMatrix();
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 	CheckGLError();
 
