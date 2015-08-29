@@ -12,10 +12,23 @@ class LinearAllocator {
 public:
 	static const size_t Alignment = 16;
 
+	LinearAllocator()
+	: m_ptr(nullptr)
+	, m_end(nullptr)
+	{
+	}
+
 	LinearAllocator(void *ptr_, size_t size)
-		: m_ptr((uint8_t*)ptr_)
-		, m_end(m_ptr + size)
-	{}
+	: m_ptr((uint8_t*)ptr_)
+	, m_end(m_ptr + size)
+	{
+	}
+
+	void initialize(void *ptr, size_t size)
+	{
+		m_ptr = (uint8_t *)ptr;
+		m_end = m_ptr + size;
+	}
 
 	static size_t alignedSize(size_t size) 
 	{
@@ -117,6 +130,4 @@ public:
 	{
 		return m_alloc.allocate(size);
 	}
-
-	// C++ suckage: need overloads ov newObject() for many arguments..
 };
