@@ -6,17 +6,11 @@ layout (location = 0) out vec4 color;
 // Input from vertex shader
 in VS_OUT
 {
-	vec4 color;
-//    vec3 N;
-//    vec3 L;
-//    vec3 V;
+    vec3 N;
+    vec3 L;
+    vec3 V;
 } fs_in;
 
-void main(void)
-{
-	color = fs_in.color;
-}
-/*
 // Material properties
 uniform vec3 diffuse_albedo = vec3(0.5, 0.2, 0.7);
 uniform vec3 specular_albedo = vec3(0.7);
@@ -37,4 +31,4 @@ void main(void)
     // Write final color to the framebuffer
     color = vec4(diffuse + specular, 1.0);
 }
-*/
+
