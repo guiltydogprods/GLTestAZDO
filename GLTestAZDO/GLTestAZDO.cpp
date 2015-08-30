@@ -14,8 +14,13 @@
 
 struct Uniforms
 {
-	Matrix44    modelViewMatrix;
+	Matrix44    viewMatrix;
 	Matrix44	projectionMatrix;
+};
+
+struct Transforms
+{
+	Matrix44	modelMatrices[1];
 };
 
 Camera *g_pCamera = nullptr;
@@ -28,6 +33,7 @@ GLuint	g_vertexArrayObject;
 GLuint  g_indexBufferName;
 GLint	g_mvpMatrixLocation = -1;
 GLuint	g_uniformsBuffer;
+GLuint	g_shaderStorageBuffer;
 
 struct errtable
 {
@@ -85,6 +91,9 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 	glBindBuffer(GL_UNIFORM_BUFFER, g_uniformsBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniforms), NULL, GL_DYNAMIC_DRAW);
 
+	glGenBuffers(1, &g_shaderStorageBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_shaderStorageBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -97,23 +106,27 @@ void Update()
 
 void Render(GLFWwindow *window)
 {
-
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(g_pShader->GetProgram());
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, g_uniformsBuffer);
-
 	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
 		sizeof(Uniforms),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-	Matrix44 modelMatrix;
-	modelMatrix.SetRotation(Deg2Rad((float)glfwGetTime() * 50.f), Vector(0.0f, 0.0f, 1.0f));
-	Matrix44 modelViewMatrix = g_pCamera->GetViewMatrix() * modelMatrix;
-
-	block->modelViewMatrix = modelViewMatrix;
+	block->viewMatrix = g_pCamera->GetViewMatrix();
 	block->projectionMatrix = g_pCamera->GetProjectionMatrix();
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
+
+	Matrix44 modelMatrix;
+	modelMatrix.SetRotation(Deg2Rad((float)glfwGetTime() * 50.f), Vector(0.0f, 0.0f, 1.0f));
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, g_shaderStorageBuffer);
+	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
+		0,
+		sizeof(Transforms),
+		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	transformsBlock->modelMatrices[0] = modelMatrix;
+	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 	glBindVertexArray(g_pMesh->getVertexArrayObject());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_pMesh->getIndexBuffer());
