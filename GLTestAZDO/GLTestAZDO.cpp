@@ -6,7 +6,7 @@
 #include "Renderer/Camera.h"
 #include "Renderer/Shader.h"
 #include "Renderer/VertexBuffer.h"
-#include "Resource/MeshResource.h"
+#include "Renderer/Mesh.h"
 
 #define CHECK_ERRORS
 
@@ -20,7 +20,7 @@ struct Uniforms
 
 Camera *g_pCamera = nullptr;
 Shader *g_pShader = nullptr;
-MeshResource *g_pMesh = nullptr;
+Mesh *g_pMesh = nullptr;
 uint32_t g_screenWidth = 1280;
 uint32_t g_screenHeight = 720;
 GLuint	g_vertexBufferName;
@@ -73,7 +73,7 @@ void CheckGLError()
 
 void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 {
-	g_pMesh = initStack.newObject<MeshResource>("assets/Donut.s3d", allocator);
+	g_pMesh = initStack.newObject<Mesh>("assets/Donut.s3d", allocator);
 
 	g_pShader = initStack.newObject<Shader>(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
 

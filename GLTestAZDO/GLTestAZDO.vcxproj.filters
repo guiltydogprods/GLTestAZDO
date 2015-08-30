@@ -77,9 +77,6 @@
     <ClInclude Include="System\File.h">
       <Filter>Source Files\System</Filter>
     </ClInclude>
-    <ClInclude Include="Resource\MeshResource.h">
-      <Filter>Source Files\Resource</Filter>
-    </ClInclude>
     <ClInclude Include="Renderer\Mesh.h">
       <Filter>Source Files\Renderer</Filter>
     </ClInclude>
@@ -126,9 +123,6 @@
     </ClCompile>
     <ClCompile Include="System\File.cpp">
       <Filter>Source Files\System</Filter>
-    </ClCompile>
-    <ClCompile Include="Resource\MeshResource.cpp">
-      <Filter>Source Files\Resource</Filter>
     </ClCompile>
     <ClCompile Include="Renderer\Mesh.cpp">
       <Filter>Source Files\Renderer</Filter>

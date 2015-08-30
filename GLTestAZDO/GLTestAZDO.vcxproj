@@ -159,7 +159,6 @@
     <ClInclude Include="Renderer\Mesh.h" />
     <ClInclude Include="Renderer\Shader.h" />
     <ClInclude Include="Renderer\VertexBuffer.h" />
-    <ClInclude Include="Resource\MeshResource.h" />
     <ClInclude Include="ScopeStackAllocator.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System\File.h" />
@@ -179,7 +178,6 @@
     <ClCompile Include="Renderer\Mesh.cpp" />
     <ClCompile Include="Renderer\Shader.cpp" />
     <ClCompile Include="Renderer\VertexBuffer.cpp" />
-    <ClCompile Include="Resource\MeshResource.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

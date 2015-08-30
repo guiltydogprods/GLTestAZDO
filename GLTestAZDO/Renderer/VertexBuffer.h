@@ -12,57 +12,27 @@
 static const uint32_t kMaxVertexElems = 16;
 static const uint32_t kMaxStreamCount = 2;
 
-class VertexElement
+struct VertexElement
 {
-public:
-	uint8_t		m_index;
-	int8_t		m_size;
-	uint16_t	m_type;
-	uint8_t		m_normalized;
-	uint32_t	m_offset;
+	uint8_t			m_index;
+	int8_t			m_size;
+	uint16_t		m_type;
+	uint8_t			m_normalized;
+	uint8_t			m_offset;			//CLR - is this big enough for MultiDrawIndirect?
 };
 
-class VertexStream
+struct VertexStream
 {
-public:
-	VertexStream();
-	~VertexStream();
-		
-	void WriteData(void* data, size_t size);
-		
-	uint32_t		m_numElements;
-	void*			m_data;
-	uint32_t		m_stride;
+	uint32_t		m_glBufferId;
+	uint8_t			m_bufferType;
+	uint8_t			m_numElements;
+	uint16_t		m_stride;
+	uint32_t		m_dataOffset;
 	VertexElement	m_elements[kMaxVertexElems];
 };
-	
-class VertexBuffer
-{
-public:
-	VertexBuffer();
-	~VertexBuffer();
-		
-	void SetNumStreams(uint32_t numStreams);	//			{	m_numStreams = numStreams;	}
-	void SetNumVertices(uint32_t numVertices);
-//	void AddElement(uint32_t stream, VertexElement& elem);
-	void AddElement(uint32_t stream, VertexElement& elem);
 
-	inline uint32_t			GetNumStreams()			{	return m_numStreams;	}
-	inline VertexStream*	GetVertexStreams()		{	return m_vertexStreams;	}
-	inline uint32_t			GetNumVertices()		{	return m_numVertices;	}
-	void SetData(uint32_t stream, VertexElement& elem, const void* data, uint32_t srcStride);
-	void SetData(uint32_t stream, void* data);
-		
-	void Write();
-	void Bind();
-	
-//		virtual uint32_t	GetVertexArrayObject() = 0;
-//		virtual uint32_t	GetVertexBuffer(uint32_t index) = 0;
-		
-protected:
-	uint32_t		m_numVertices;
+struct VertexBuffer
+{
 	uint32_t		m_numStreams;
-	VertexStream	m_vertexStreams[kMaxStreamCount];
-	uint32_t		m_glVertexArrayObject;
-	uint32_t		m_glVertexBuffers[kMaxStreamCount];
+	VertexStream	m_streams[kMaxStreamCount];
 };
