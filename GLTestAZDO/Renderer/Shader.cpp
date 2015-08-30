@@ -8,8 +8,9 @@
  */
 #include "stdafx.h"
 #include "Shader.h"
-
 #include "System/File.h"
+#include "ScopeStackAllocator.h"
+
 void CheckGLError();
 
 	void Shader::CheckForError(GLuint shader, GLint shaderType)
@@ -40,11 +41,13 @@ void CheckGLError();
 		}
 	}
 
-	Shader::Shader(uint32_t hash, const char* vertexShader, const char* fragmentShader)
+	Shader::Shader(uint32_t hash, const char* vertexShader, const char* fragmentShader, LinearAllocator& allocator)
 		: m_glslProgram(0)
 		, m_vertexShader(0)
 		, m_fragmentShader(0)
 	{
+		ScopeStack tempStack(allocator);
+
 		const char *compileStrings[2] = { nullptr, nullptr };
 		char preprocString[512];
 		
@@ -54,11 +57,11 @@ void CheckGLError();
 		{
 			m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
 			CheckGLError();
-			char* vs = FileRead(vertexShader, "rt");
+			File *pFile = tempStack.newObject<File>(vertexShader, "rt", tempStack);
+			char* vs = (char *)pFile->getData();
 			compileStrings[0] = vs;
 			glShaderSource(m_vertexShader, 1, compileStrings, nullptr);
 			CheckGLError();
-			free(vs);
 			glCompileShader(m_vertexShader);
 			CheckGLError();
 			CheckForError(m_vertexShader, GL_VERTEX_SHADER);
@@ -69,11 +72,11 @@ void CheckGLError();
 		if( fragmentShader )
 		{
 			m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-			char* fs = FileRead(fragmentShader, "rt");
+			File *pFile = tempStack.newObject<File>(fragmentShader, "rt", tempStack);
+			char* fs = (char *)pFile->getData();
 			compileStrings[0] = fs;
 			glShaderSource(m_fragmentShader, 1, compileStrings, nullptr);
 			CheckGLError();
-			free(fs);
 			glCompileShader(m_fragmentShader);
 			CheckGLError();
 			CheckForError(m_fragmentShader, GL_FRAGMENT_SHADER);
@@ -82,26 +85,9 @@ void CheckGLError();
 		}
 		glLinkProgram(m_glslProgram);
 		CheckGLError();
+	}
 
-		/*
-		uint32_t index = 0;
-		if (ion::GfxDevice::Get()->GetAttibLocation(m_glslProgram, "in_position") >= 0) {
-			ion::GfxDevice::Get()->BindAttribLocation(m_glslProgram, index++, "in_position");
-		}
-		if (ion::GfxDevice::Get()->GetAttibLocation(m_glslProgram, "in_normal") >= 0) {
-			ion::GfxDevice::Get()->BindAttribLocation(m_glslProgram, index++, "in_normal");
-		}
-		if (ion::GfxDevice::Get()->GetAttibLocation(m_glslProgram, "in_texcoord") >= 0) {
-			ion::GfxDevice::Get()->BindAttribLocation(m_glslProgram, index++, "in_texcoord");
-		}
-		ion::GfxDevice::Get()->LinkProgram(m_glslProgram);
-		
-		m_parameters[kParamMVPMatrix] = ion::GfxDevice::Get()->GetUniformLocation(m_glslProgram, "g_mTransform");
-		m_parameters[kParamModelViewMatrix] = ion::GfxDevice::Get()->GetUniformLocation(m_glslProgram, "g_mModelView");
-		m_parameters[kParamNormalMatrix] = ion::GfxDevice::Get()->GetUniformLocation(m_glslProgram, "g_mNormal");
-		m_parameters[kParamLight0Pos] = ion::GfxDevice::Get()->GetUniformLocation(m_glslProgram, "g_mLight0Pos");
-		m_parameters[kParamMaterialDiffuse] = ion::GfxDevice::Get()->GetUniformLocation(m_glslProgram, "g_mMaterialDiffuse");
-		m_parameters[kParamMaterialSpecular] = ion::GfxDevice::Get()->GetUniformLocation(m_glslProgram, "g_mMaterialSpecular");
-		m_parameters[kParamAlbedoMap] = ion::GfxDevice::Get()->GetUniformLocation(m_glslProgram, "albedotex");
-		*/
+	Shader::~Shader()
+	{
+		fprintf(stdout, "Shader dtor\n");
 	}

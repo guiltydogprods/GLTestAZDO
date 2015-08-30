@@ -18,6 +18,7 @@
 	{
 	public:
 		Camera(float fieldOfView, float width, float height, float zNear, float zFar);
+		~Camera();
 
 		void Update();
 

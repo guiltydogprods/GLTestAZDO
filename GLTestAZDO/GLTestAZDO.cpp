@@ -75,14 +75,16 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 {
 	g_pMesh = initStack.newObject<MeshResource>("assets/Donut.s3d", allocator);
 
-	g_pShader = new Shader(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl");
+	g_pShader = initStack.newObject<Shader>(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
+
+	g_pCamera = initStack.newObject<Camera>(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
+	g_pCamera->LookAt(Point(0.0f, 0.75f, 1.25f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	g_pCamera->Update();
+
 	glGenBuffers(1, &g_uniformsBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, g_uniformsBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniforms), NULL, GL_DYNAMIC_DRAW);
 
-	g_pCamera = new Camera(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
-	g_pCamera->LookAt(Point(0.0f, 0.75f, 1.25f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
-	g_pCamera->Update();
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glEnable(GL_DEPTH_TEST);

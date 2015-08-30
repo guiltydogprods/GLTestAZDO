@@ -60,7 +60,6 @@ void CheckGLError();
 	MeshResource::~MeshResource()
 	{
 		fprintf(stdout, "MeshResource dtor\n", glGetString(GL_VENDOR));
-
 	}
 	
 	/*

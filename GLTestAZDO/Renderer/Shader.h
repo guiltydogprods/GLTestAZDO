@@ -5,20 +5,20 @@
 //  Created by Claire Rogers on 14/10/2012.
 //  Copyright (c) 2013 Guilty Dog Productions Ltd. All rights reserved.
 //
-
 #pragma once
+#include "ScopeStackAllocator.h"
 
 #ifdef __cplusplus
 	class Shader
 	{
-	public:
-		static Shader* Create(uint32_t hash, const char* vertexShader = NULL, const char* fragmentShader = NULL);
+	public:		
+		Shader(uint32_t hash, const char* vertexShader, const char* fragmentShader, LinearAllocator& allocator);
+		~Shader();
 
-		
-		inline uint32_t GetProgram()				{	return m_glslProgram;	}
-		inline uint32_t GetHash()					{	return m_hash;			}
-		inline uint32_t* GetParameters()			{	return m_parameters;	}
-		Shader(uint32_t hash, const char* vertexShader, const char* fragmentShader);
+		inline uint32_t GetProgram()				{ return m_glslProgram; }
+		inline uint32_t GetHash()					{ return m_hash; }
+		inline uint32_t* GetParameters()			{ return m_parameters; }
+
 		void CheckForError(GLuint shader, GLint shaderType);
 
 		uint32_t		m_hash;

@@ -22,6 +22,11 @@
 	{
 	}
 
+	Camera::~Camera()
+	{
+		fprintf(stdout, "Camera dtor\n");
+	}
+
 	void Camera::LookAt(Point position, Point at, Vector up)
 	{
 		Vector zAxis = Normalize(position - at);
