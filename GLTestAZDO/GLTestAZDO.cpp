@@ -147,7 +147,7 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 			{
 				materials[materialIndex].diffuse[0] = 1.0f;
 				materials[materialIndex].diffuse[1] = green;
-				materials[materialIndex].diffuse[2] = blue;	// 1.0f / (float)kNumX;
+				materials[materialIndex].diffuse[2] = blue;;
 				materials[materialIndex].specular[0] = materials[materialIndex].specular[1] = materials[materialIndex].specular[2] = 0.7f;
 				materials[materialIndex].specularPower = 5.0f + 10.0f * x;
 				materialIndex++;
@@ -191,7 +191,6 @@ void Render(GLFWwindow *window)
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
 	Matrix44 modelMatrix;
-	modelMatrix.SetRotation(Deg2Rad((float)glfwGetTime() * 50.f), Vector(0.0f, 0.0f, 1.0f));
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, g_shaderStorageBuffer);
 	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
 		0,
@@ -202,9 +201,11 @@ void Render(GLFWwindow *window)
 	float startY = -(float)(kNumY - 1) / 2.0f;
 	for (uint32_t y = 0; y < kNumY; ++y)
 	{
+		float baseRotation = (float)glfwGetTime() * 50.0f;
 		float startZ = (float)(kNumZ - 1) / 2.0f;
 		for (uint32_t z = 0; z < kNumZ; ++z)
 		{
+			modelMatrix.SetRotation(Deg2Rad(baseRotation + (360.0f / (float)kNumZ) * (float)z), Vector(0.0f, 0.0f, 1.0f));
 			float startX = -(float)(kNumX - 1) / 2.0f;
 			for (uint32_t x = 0; x < kNumX; ++x)
 			{
