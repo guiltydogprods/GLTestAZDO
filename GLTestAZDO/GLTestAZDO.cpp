@@ -37,6 +37,13 @@ struct DrawElementsIndirectCommand
 	uint32_t	baseInstance;
 };
 
+struct MaterialProperties
+{
+	float diffuse[4];
+	float specular[3];
+	float specularPower;
+};
+
 Camera *g_pCamera = nullptr;
 Shader *g_pShader = nullptr;
 Mesh *g_pMesh = nullptr;
@@ -47,6 +54,7 @@ GLint	g_mvpMatrixLocation = -1;
 GLuint	g_uniformsBuffer;
 GLuint	g_shaderStorageBuffer;
 GLuint	g_indirectDrawBuffer;
+GLuint	g_materialBuffer;
 
 struct errtable
 {
@@ -97,7 +105,7 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 	g_pShader = initStack.newObject<Shader>(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
 
 	g_pCamera = initStack.newObject<Camera>(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
-	g_pCamera->LookAt(Point(0.0f, 0.0f, 10.0f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	g_pCamera->LookAt(Point(0.0f, 2.0f, 10.0f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
 	g_pCamera->Update();
 
 	glGenBuffers(1, &g_uniformsBuffer);
@@ -118,9 +126,37 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 		cmd[i].instanceCount = 1;
 		cmd[i].firstIndex = 0;
 		cmd[i].baseVertex = 0;
-		cmd[i].baseInstance = 0;
+		cmd[i].baseInstance = i;
 	}
 	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
+
+	glGenBuffers(1, &g_materialBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_materialBuffer);
+	glBufferData(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(MaterialProperties), NULL, GL_STATIC_DRAW);
+	MaterialProperties *materials = (MaterialProperties *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, kNumDraws * sizeof(MaterialProperties), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	uint32_t materialIndex = 0;
+	float green = 0.0f;
+	float deltaGreen = 1.0f / (float)kNumY;
+	for (uint32_t y = 0; y < kNumY; ++y)
+	{
+		float blue = 0.0f;
+		float deltaBlue = 1.0f / (float)kNumZ;
+		for (uint32_t z = 0; z < kNumZ; ++z)
+		{
+			for (uint32_t x = 0; x < kNumX; ++x)
+			{
+				materials[materialIndex].diffuse[0] = 1.0f;
+				materials[materialIndex].diffuse[1] = green;
+				materials[materialIndex].diffuse[2] = blue;	// 1.0f / (float)kNumX;
+				materials[materialIndex].specular[0] = materials[materialIndex].specular[1] = materials[materialIndex].specular[2] = 0.7f;
+				materials[materialIndex].specularPower = 1.0f + 20.0f * x;
+				materialIndex++;
+			}
+			blue += deltaBlue;
+		}
+		green += deltaGreen;
+	}
+	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
@@ -157,19 +193,21 @@ void Render(GLFWwindow *window)
 	float startY = -(float)(kNumY - 1) / 2.0f;
 	for (uint32_t y = 0; y < kNumY; ++y)
 	{
-		float startZ = -(float)(kNumZ - 1) / 2.0f;
+		float startZ = (float)(kNumZ - 1) / 2.0f;
 		for (uint32_t z = 0; z < kNumZ; ++z)
 		{
 			float startX = -(float)(kNumX - 1) / 2.0f;
 			for (uint32_t x = 0; x < kNumX; ++x)
 			{
 				transformsBlock->modelMatrices[modelIndex] = modelMatrix;
-				transformsBlock->modelMatrices[modelIndex].SetTranslate(Point(startX + x, startY + y, startZ + z));
+				transformsBlock->modelMatrices[modelIndex].SetTranslate(Point(startX + x, startY + y, startZ - z));
 				modelIndex++;
 			}
 		}
 	}
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, g_materialBuffer);
 
 	glBindVertexArray(g_pMesh->getVertexArrayObject());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_pMesh->getIndexBuffer());
