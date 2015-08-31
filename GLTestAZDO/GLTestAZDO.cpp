@@ -12,7 +12,10 @@
 
 const uint32_t g_screenWidth = 1280;
 const uint32_t g_screenHeight = 720;
-const uint32_t kNumDraws = 3;
+const uint32_t kNumX = 10;
+const uint32_t kNumZ = 10;
+const uint32_t kNumY = 10;
+const uint32_t kNumDraws = kNumX * kNumZ * kNumY;
 
 struct Uniforms
 {
@@ -94,7 +97,7 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 	g_pShader = initStack.newObject<Shader>(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
 
 	g_pCamera = initStack.newObject<Camera>(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
-	g_pCamera->LookAt(Point(0.0f, 0.75f, 1.25f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	g_pCamera->LookAt(Point(0.0f, 0.0f, 10.0f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
 	g_pCamera->Update();
 
 	glGenBuffers(1, &g_uniformsBuffer);
@@ -109,21 +112,14 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, g_indirectDrawBuffer);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), NULL, GL_STATIC_DRAW);
 	DrawElementsIndirectCommand *cmd = (DrawElementsIndirectCommand *)glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, kNumDraws * sizeof(DrawElementsIndirectCommand), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-	cmd[0].count = g_pMesh->getNumIndices();
-	cmd[0].instanceCount = 1;
-	cmd[0].firstIndex = 0;
-	cmd[0].baseVertex = 0;
-	cmd[0].baseInstance = 0;
-	cmd[1].count = g_pMesh->getNumIndices();
-	cmd[1].instanceCount = 1;
-	cmd[1].firstIndex = 0;
-	cmd[1].baseVertex = 0;
-	cmd[1].baseInstance = 0;
-	cmd[2].count = g_pMesh->getNumIndices();
-	cmd[2].instanceCount = 1;
-	cmd[2].firstIndex = 0;
-	cmd[2].baseVertex = 0;
-	cmd[2].baseInstance = 0;
+	for (uint32_t i = 0; i < kNumDraws; ++i)
+	{
+		cmd[i].count = g_pMesh->getNumIndices();
+		cmd[i].instanceCount = 1;
+		cmd[i].firstIndex = 0;
+		cmd[i].baseVertex = 0;
+		cmd[i].baseInstance = 0;
+	}
 	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
@@ -156,12 +152,23 @@ void Render(GLFWwindow *window)
 		0,
 		sizeof(Transforms),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-	transformsBlock->modelMatrices[0] = modelMatrix;
-	transformsBlock->modelMatrices[0].SetTranslate(Point(-1.0f, 0.0f, 0.0f));
-	transformsBlock->modelMatrices[1] = modelMatrix;
-	transformsBlock->modelMatrices[1].SetTranslate(Point( 0.0f, 0.0f, 0.0f));
-	transformsBlock->modelMatrices[2] = modelMatrix;
-	transformsBlock->modelMatrices[2].SetTranslate(Point( 1.f, 0.0f, 0.0f));
+
+	uint32_t modelIndex = 0;
+	float startY = -(float)(kNumY - 1) / 2.0f;
+	for (uint32_t y = 0; y < kNumY; ++y)
+	{
+		float startZ = -(float)(kNumZ - 1) / 2.0f;
+		for (uint32_t z = 0; z < kNumZ; ++z)
+		{
+			float startX = -(float)(kNumX - 1) / 2.0f;
+			for (uint32_t x = 0; x < kNumX; ++x)
+			{
+				transformsBlock->modelMatrices[modelIndex] = modelMatrix;
+				transformsBlock->modelMatrices[modelIndex].SetTranslate(Point(startX + x, startY + y, startZ + z));
+				modelIndex++;
+			}
+		}
+	}
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 	glBindVertexArray(g_pMesh->getVertexArrayObject());
