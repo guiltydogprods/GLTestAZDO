@@ -12,9 +12,9 @@
 
 const uint32_t g_screenWidth = 1280;
 const uint32_t g_screenHeight = 720;
-const uint32_t kNumX = 10;
-const uint32_t kNumZ = 10;
-const uint32_t kNumY = 10;
+const uint32_t kNumX = 20;
+const uint32_t kNumZ = 20;
+const uint32_t kNumY = 20;
 const uint32_t kNumDraws = kNumX * kNumZ * kNumY;
 
 struct Uniforms
@@ -105,7 +105,7 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 	g_pShader = initStack.newObject<Shader>(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
 
 	g_pCamera = initStack.newObject<Camera>(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
-	g_pCamera->LookAt(Point(0.0f, 2.0f, 10.0f), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	g_pCamera->LookAt(Point(0.0f, 0.0f, 9.0f + (float(kNumZ-1) / 2.0f)), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
 	g_pCamera->Update();
 
 	glGenBuffers(1, &g_uniformsBuffer);
@@ -149,7 +149,7 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 				materials[materialIndex].diffuse[1] = green;
 				materials[materialIndex].diffuse[2] = blue;	// 1.0f / (float)kNumX;
 				materials[materialIndex].specular[0] = materials[materialIndex].specular[1] = materials[materialIndex].specular[2] = 0.7f;
-				materials[materialIndex].specularPower = 1.0f + 20.0f * x;
+				materials[materialIndex].specularPower = 5.0f + 10.0f * x;
 				materialIndex++;
 			}
 			blue += deltaBlue;
@@ -164,13 +164,22 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 
 void Update()
 {
-
+	static float angle = 0.0f;
+	float sina = sinf(Deg2Rad(angle));
+	float cosa = cosf(Deg2Rad(angle));
+	float radius = 4.5f + (float)(kNumZ - 1) / 2.0f;
+	g_pCamera->LookAt(Point(sina * radius, -sina * radius, cosa * radius), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	g_pCamera->Update();
+	angle += 0.25f;
+	if (angle >= 360.0f)
+		angle -= 360.0f;
 }
 
 void Render(GLFWwindow *window)
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(g_pShader->GetProgram());
+
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, g_uniformsBuffer);
 	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
@@ -214,7 +223,6 @@ void Render(GLFWwindow *window)
 
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, g_indirectDrawBuffer);
 
-//	glDrawElements(GL_TRIANGLES, g_pMesh->getNumIndices(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
 	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, BUFFER_OFFSET(0), kNumDraws, 0);
 
 	glfwSwapBuffers(window);
