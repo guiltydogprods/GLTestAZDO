@@ -1,5 +1,3 @@
-// GLTestAZDO.cpp : Defines the entry point for the console application.
-//
 #include "stdafx.h"
 #include "ScopeStackAllocator.h"
 #include "Math/FMath.h"
@@ -12,6 +10,10 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
+const uint32_t g_screenWidth = 1280;
+const uint32_t g_screenHeight = 720;
+const uint32_t kNumDraws = 3;
+
 struct Uniforms
 {
 	Matrix44    viewMatrix;
@@ -20,20 +22,28 @@ struct Uniforms
 
 struct Transforms
 {
-	Matrix44	modelMatrices[1];
+	Matrix44	modelMatrices[kNumDraws];
+};
+
+struct DrawElementsIndirectCommand
+{
+	uint32_t	count;
+	uint32_t	instanceCount;
+	uint32_t	firstIndex;
+	uint32_t	baseVertex;
+	uint32_t	baseInstance;
 };
 
 Camera *g_pCamera = nullptr;
 Shader *g_pShader = nullptr;
 Mesh *g_pMesh = nullptr;
-uint32_t g_screenWidth = 1280;
-uint32_t g_screenHeight = 720;
 GLuint	g_vertexBufferName;
 GLuint	g_vertexArrayObject;
 GLuint  g_indexBufferName;
 GLint	g_mvpMatrixLocation = -1;
 GLuint	g_uniformsBuffer;
 GLuint	g_shaderStorageBuffer;
+GLuint	g_indirectDrawBuffer;
 
 struct errtable
 {
@@ -95,6 +105,27 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_shaderStorageBuffer);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
 
+	glGenBuffers(1, &g_indirectDrawBuffer);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, g_indirectDrawBuffer);
+	glBufferData(GL_DRAW_INDIRECT_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), NULL, GL_STATIC_DRAW);
+	DrawElementsIndirectCommand *cmd = (DrawElementsIndirectCommand *)glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, kNumDraws * sizeof(DrawElementsIndirectCommand), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	cmd[0].count = g_pMesh->getNumIndices();
+	cmd[0].instanceCount = 1;
+	cmd[0].firstIndex = 0;
+	cmd[0].baseVertex = 0;
+	cmd[0].baseInstance = 0;
+	cmd[1].count = g_pMesh->getNumIndices();
+	cmd[1].instanceCount = 1;
+	cmd[1].firstIndex = 0;
+	cmd[1].baseVertex = 0;
+	cmd[1].baseInstance = 0;
+	cmd[2].count = g_pMesh->getNumIndices();
+	cmd[2].instanceCount = 1;
+	cmd[2].firstIndex = 0;
+	cmd[2].baseVertex = 0;
+	cmd[2].baseInstance = 0;
+	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
+
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 }
@@ -126,11 +157,20 @@ void Render(GLFWwindow *window)
 		sizeof(Transforms),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	transformsBlock->modelMatrices[0] = modelMatrix;
+	transformsBlock->modelMatrices[0].SetTranslate(Point(-1.0f, 0.0f, 0.0f));
+	transformsBlock->modelMatrices[1] = modelMatrix;
+	transformsBlock->modelMatrices[1].SetTranslate(Point( 0.0f, 0.0f, 0.0f));
+	transformsBlock->modelMatrices[2] = modelMatrix;
+	transformsBlock->modelMatrices[2].SetTranslate(Point( 1.f, 0.0f, 0.0f));
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 	glBindVertexArray(g_pMesh->getVertexArrayObject());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_pMesh->getIndexBuffer());
-	glDrawElements(GL_TRIANGLES, g_pMesh->getNumIndices(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, g_indirectDrawBuffer);
+
+//	glDrawElements(GL_TRIANGLES, g_pMesh->getNumIndices(), GL_UNSIGNED_INT, BUFFER_OFFSET(0));
+	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, BUFFER_OFFSET(0), kNumDraws, 0);
 
 	glfwSwapBuffers(window);
 	glfwPollEvents();
