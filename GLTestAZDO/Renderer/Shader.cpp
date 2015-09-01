@@ -1,10 +1,5 @@
 /*
  *  Shader.cpp
- *  ion::Engine
- *
- *  Created by Claire Rogers on 22/09/2005.
- *  Copyright 2005 Digital Frelp. All rights reserved.
- *
  */
 #include "stdafx.h"
 #include "Shader.h"
@@ -13,7 +8,7 @@
 
 void CheckGLError();
 
-	void Shader::CheckForError(GLuint shader, GLint shaderType)
+	void Shader::CheckForCompileErrors(GLuint shader, GLint shaderType)
 	{
 		int32_t error = 0;
 
@@ -41,46 +36,43 @@ void CheckGLError();
 		}
 	}
 
-	Shader::Shader(uint32_t hash, const char* vertexShader, const char* fragmentShader, LinearAllocator& allocator)
+	Shader::Shader(const char* vertexShaderName, const char* fragmentShaderName, LinearAllocator& allocator)
 		: m_glslProgram(0)
-		, m_vertexShader(0)
-		, m_fragmentShader(0)
 	{
 		ScopeStack tempStack(allocator);
 
 		const char *compileStrings[2] = { nullptr, nullptr };
-		char preprocString[512];
 		
 		m_glslProgram = glCreateProgram();
 		CheckGLError();
-		if( vertexShader )
+		if (vertexShaderName)
 		{
-			m_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+			uint32_t vertexShader = glCreateShader(GL_VERTEX_SHADER);
 			CheckGLError();
-			File *pFile = tempStack.newObject<File>(vertexShader, "rt", tempStack);
+			File *pFile = tempStack.newObject<File>(vertexShaderName, "rt", tempStack);
 			char* vs = (char *)pFile->getData();
 			compileStrings[0] = vs;
-			glShaderSource(m_vertexShader, 1, compileStrings, nullptr);
+			glShaderSource(vertexShader, 1, compileStrings, nullptr);
 			CheckGLError();
-			glCompileShader(m_vertexShader);
+			glCompileShader(vertexShader);
 			CheckGLError();
-			CheckForError(m_vertexShader, GL_VERTEX_SHADER);
-			glAttachShader(m_glslProgram, m_vertexShader);
+			CheckForCompileErrors(vertexShader, GL_VERTEX_SHADER);
+			glAttachShader(m_glslProgram, vertexShader);
 			CheckGLError();
 		}
 		
-		if( fragmentShader )
+		if (fragmentShaderName)
 		{
-			m_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-			File *pFile = tempStack.newObject<File>(fragmentShader, "rt", tempStack);
+			uint32_t fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+			File *pFile = tempStack.newObject<File>(fragmentShaderName, "rt", tempStack);
 			char* fs = (char *)pFile->getData();
 			compileStrings[0] = fs;
-			glShaderSource(m_fragmentShader, 1, compileStrings, nullptr);
+			glShaderSource(fragmentShader, 1, compileStrings, nullptr);
 			CheckGLError();
-			glCompileShader(m_fragmentShader);
+			glCompileShader(fragmentShader);
 			CheckGLError();
-			CheckForError(m_fragmentShader, GL_FRAGMENT_SHADER);
-			glAttachShader(m_glslProgram, m_fragmentShader);
+			CheckForCompileErrors(fragmentShader, GL_FRAGMENT_SHADER);
+			glAttachShader(m_glslProgram, fragmentShader);
 			CheckGLError();
 		}
 		glLinkProgram(m_glslProgram);

@@ -102,7 +102,7 @@ void Initialize(LinearAllocator& allocator, ScopeStack& initStack)
 {
 	g_pMesh = initStack.newObject<Mesh>("assets/Donut.s3d", allocator);
 
-	g_pShader = initStack.newObject<Shader>(0, "Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
+	g_pShader = initStack.newObject<Shader>("Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
 
 	g_pCamera = initStack.newObject<Camera>(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
 	g_pCamera->LookAt(Point(0.0f, 0.0f, 9.0f + (float(kNumZ-1) / 2.0f)), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
