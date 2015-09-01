@@ -193,6 +193,7 @@
   <ItemGroup>
     <None Include="Shaders\blinnphong.fs.glsl" />
     <None Include="Shaders\blinnphong.vs.glsl" />
+    <None Include="Shaders\cull.cs.glsl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

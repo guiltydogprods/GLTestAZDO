@@ -135,5 +135,8 @@
     <None Include="Shaders\blinnphong.vs.glsl">
       <Filter>Source Files\Shaders</Filter>
     </None>
+    <None Include="Shaders\cull.cs.glsl">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
