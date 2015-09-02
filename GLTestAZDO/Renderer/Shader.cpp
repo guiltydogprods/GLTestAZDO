@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "Shader.h"
 #include "System/File.h"
-#include "ScopeStackAllocator.h"
 
 void CheckGLError();
 

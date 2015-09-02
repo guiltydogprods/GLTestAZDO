@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "ScopeStackAllocator.h"
 #include "Math/FMath.h"
 #include "Renderer/Camera.h"
 #include "Renderer/Shader.h"

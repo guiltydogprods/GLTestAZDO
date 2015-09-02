@@ -18,6 +18,6 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
-#include "ScopeStackAllocator.h"
+#include "System/ScopeStackAllocator.h"
 
 // TODO: reference additional headers your program requires here

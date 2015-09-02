@@ -8,7 +8,6 @@
 
 #pragma once
 
-#include "ScopeStackAllocator.h"
 #include "Math/Matrix44.h"
 #include "VertexBuffer.h"
 

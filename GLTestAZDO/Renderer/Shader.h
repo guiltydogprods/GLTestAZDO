@@ -1,6 +1,5 @@
 //  Shader.h
 #pragma once
-#include "ScopeStackAllocator.h"
 
 #ifdef __cplusplus
 	class Shader
