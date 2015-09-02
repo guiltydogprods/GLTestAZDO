@@ -8,13 +8,8 @@
 
 #include "stdafx.h"
 
-#include <math.h>
-
 #include "Camera.h"
 #include "Math/FMath.h"
-#include "Math/Vector4.h"
-#include "Math/Matrix44.h"
-
 
 	Camera::Camera(float fieldOfView, float width, float height, float nearZ, float farZ)
 	:
