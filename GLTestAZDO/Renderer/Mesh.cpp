@@ -60,7 +60,10 @@ void CheckGLError();
 		
 	Mesh::~Mesh()
 	{
-		fprintf(stdout, "MeshResource dtor\n", glGetString(GL_VENDOR));
+		fprintf(stdout, "Mesh dtor\n", glGetString(GL_VENDOR));
+		glDeleteBuffers(1, &m_indexBuffer);
+		glDeleteVertexArrays(1, &m_vertexArrayObject);
+		glDeleteBuffers(1, &m_vertexBuffer);
 	}
 	
 	/*

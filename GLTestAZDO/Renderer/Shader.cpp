@@ -59,6 +59,8 @@ void CheckGLError();
 			CheckForCompileErrors(vertexShader, GL_VERTEX_SHADER);
 			glAttachShader(m_glslProgram, vertexShader);
 			CheckGLError();
+			glDeleteShader(vertexShader);
+			CheckGLError();
 		}
 		
 		if (fragmentShaderName)
@@ -74,6 +76,38 @@ void CheckGLError();
 			CheckForCompileErrors(fragmentShader, GL_FRAGMENT_SHADER);
 			glAttachShader(m_glslProgram, fragmentShader);
 			CheckGLError();
+			glDeleteShader(fragmentShader);
+			CheckGLError();
+		}
+		glLinkProgram(m_glslProgram);
+		CheckGLError();
+	}
+
+	Shader::Shader(const char* computeShaderName, LinearAllocator& allocator)
+		: m_glslProgram(0)
+	{
+		ScopeStack tempStack(allocator);
+
+		const char *compileString = nullptr;
+
+		m_glslProgram = glCreateProgram();
+		CheckGLError();
+		if (computeShaderName)
+		{
+			uint32_t computeShader = glCreateShader(GL_COMPUTE_SHADER);
+			CheckGLError();
+			File *pFile = tempStack.newObject<File>(computeShaderName, "rt", tempStack);
+			char* vs = (char *)pFile->getData();
+			compileString = vs;
+			glShaderSource(computeShader, 1, &compileString, nullptr);
+			CheckGLError();
+			glCompileShader(computeShader);
+			CheckGLError();
+			CheckForCompileErrors(computeShader, GL_COMPUTE_SHADER);
+			glAttachShader(m_glslProgram, computeShader);
+			CheckGLError();
+			glDeleteShader(computeShader);
+			CheckGLError();
 		}
 		glLinkProgram(m_glslProgram);
 		CheckGLError();
@@ -82,4 +116,6 @@ void CheckGLError();
 	Shader::~Shader()
 	{
 		fprintf(stdout, "Shader dtor\n");
+		glDeleteProgram(m_glslProgram);
+		CheckGLError();
 	}

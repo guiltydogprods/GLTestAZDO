@@ -6,8 +6,8 @@ struct CandidateDraw
 {
     vec3 sphereCenter;
     float sphereRadius;
-    uint firstVertex;
-    uint vertexCount;
+    uint firstIndex;
+    uint indexCount;
 };
 
 struct DrawElementsIndirectCommand
@@ -15,7 +15,7 @@ struct DrawElementsIndirectCommand
     uint indexCount;
     uint instanceCount;
     uint firstIndex;
-	uint baseVertex''
+	uint baseVertex;
     uint baseInstance;
 };
 
