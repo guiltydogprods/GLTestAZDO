@@ -77,6 +77,9 @@
     <ClInclude Include="System\ScopeStackAllocator.h">
       <Filter>Source Files\System</Filter>
     </ClInclude>
+    <ClInclude Include="GLTestAZDO.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -123,6 +126,9 @@
     </ClCompile>
     <ClCompile Include="Renderer\Mesh.cpp">
       <Filter>Source Files\Renderer</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

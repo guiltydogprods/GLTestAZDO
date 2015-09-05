@@ -151,6 +151,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="GLTestAZDO.h" />
     <ClInclude Include="Math\FMath.h" />
     <ClInclude Include="Math\Matrix44.h" />
     <ClInclude Include="Math\Point.h" />
@@ -170,6 +171,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GLTestAZDO.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Math\FMath.cpp" />
     <ClCompile Include="Math\Matrix44.cpp" />
     <ClCompile Include="Math\Point.cpp" />
