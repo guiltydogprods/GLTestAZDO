@@ -10,9 +10,9 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-const uint32_t kNumX = 20;
-const uint32_t kNumZ = 20;
-const uint32_t kNumY = 20;
+const uint32_t kNumX = 10;	// 20;
+const uint32_t kNumZ = 10;	// 20;
+const uint32_t kNumY = 10;	// 20;
 const uint32_t kNumDraws = kNumX * kNumZ * kNumY;
 
 struct Uniforms
@@ -24,6 +24,15 @@ struct Uniforms
 struct Transforms
 {
 	Matrix44	modelMatrices[kNumDraws];
+};
+
+struct CandidateDraw
+{
+	Vector4		sphere;			//x, y & z = center w = radius
+	uint32_t	firstIndex;
+	uint32_t	indexCount;
+	uint32_t : 32;
+	uint32_t : 32;
 };
 
 struct DrawElementsIndirectCommand
@@ -107,9 +116,51 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_shaderStorageBuffer);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
 
+	glGenBuffers(1, &m_parameterBuffer);
+	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
+	glBufferStorage(GL_PARAMETER_BUFFER_ARB, 256, nullptr, 0);
+
+	glGenBuffers(1, &m_drawCandidatesBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_drawCandidatesBuffer);
+
+	{
+		ScopeStack tempScopeStack(allocator);
+		CandidateDraw *pDraws = static_cast<CandidateDraw *>(tempScopeStack.alloc(sizeof(CandidateDraw) * kNumDraws));
+
+		for (uint32_t i = 0; i < kNumDraws; ++i)
+		{
+			pDraws[i].sphere = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+			pDraws[i].firstIndex = 0;
+			pDraws[i].indexCount = m_pMesh->getNumIndices();			
+		}
+		glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(CandidateDraw), pDraws, 0);
+	}
+	/*
+	CandidateDraw* pDraws = new CandidateDraw[CANDIDATE_COUNT];
+
+	int i;
+
+	for (i = 0; i < CANDIDATE_COUNT; i++)
+	{
+		object.get_sub_object_info(i % object.get_sub_object_count(), first, count);
+		pDraws[i].sphereCenter = vmath::vec3(0.0f);
+		pDraws[i].sphereRadius = 4.0f;
+		pDraws[i].firstVertex = first;
+		pDraws[i].vertexCount = count;
+	}
+
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, CANDIDATE_COUNT * sizeof(CandidateDraw), pDraws, 0);
+
+	delete[] pDraws;
+	*/
+	glGenBuffers(1, &m_drawCommandBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_drawCommandBuffer);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_MAP_READ_BIT);
+
+	/*
 	glGenBuffers(1, &m_indirectDrawBuffer);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawBuffer);
-	glBufferData(GL_DRAW_INDIRECT_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), NULL, GL_STATIC_DRAW);
+	glBufferData(GL_DRAW_INDIRECT_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_STATIC_DRAW);
 	DrawElementsIndirectCommand *cmd = (DrawElementsIndirectCommand *)glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, kNumDraws * sizeof(DrawElementsIndirectCommand), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	for (uint32_t i = 0; i < kNumDraws; ++i)
 	{
@@ -120,6 +171,7 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 		cmd[i].baseInstance = i;
 	}
 	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
+	*/
 
 	glGenBuffers(1, &m_materialBuffer);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_materialBuffer);
