@@ -10,8 +10,6 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-const uint32_t g_screenWidth = 1280;
-const uint32_t g_screenHeight = 720;
 const uint32_t kNumX = 20;
 const uint32_t kNumZ = 20;
 const uint32_t kNumY = 20;
@@ -43,19 +41,6 @@ struct MaterialProperties
 	float specular[3];
 	float specularPower;
 };
-
-Camera *g_pCamera = nullptr;
-Shader *g_pShader = nullptr;
-Shader *g_pComputeShader = nullptr;
-Mesh *g_pMesh = nullptr;
-GLuint	g_vertexBufferName;
-GLuint	g_vertexArrayObject;
-GLuint  g_indexBufferName;
-GLint	g_mvpMatrixLocation = -1;
-GLuint	g_uniformsBuffer;
-GLuint	g_shaderStorageBuffer;
-GLuint	g_indirectDrawBuffer;
-GLuint	g_materialBuffer;
 
 struct errtable
 {
@@ -100,31 +85,35 @@ void CheckGLError()
 }
 
 TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllocator &allocator, ScopeStack &initStack)
+: m_pCamera(nullptr)
+, m_pShader(nullptr)
+, m_pComputeShader(nullptr)
+, m_pMesh(nullptr)
 {
-	g_pMesh = initStack.newObject<Mesh>("assets/Donut.s3d", allocator);
+	m_pMesh = initStack.newObject<Mesh>("assets/Donut.s3d", allocator);
 
-	g_pShader = initStack.newObject<Shader>("Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
-	g_pComputeShader = initStack.newObject<Shader>("Shaders/cull.cs.glsl", allocator);
+	m_pShader = initStack.newObject<Shader>("Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
+	m_pComputeShader = initStack.newObject<Shader>("Shaders/cull.cs.glsl", allocator);
 
-	g_pCamera = initStack.newObject<Camera>(90.0f, (float)g_screenWidth, (float)g_screenHeight, 0.1f, 100.f);
-	g_pCamera->LookAt(Point(0.0f, 0.0f, 9.0f + (float(kNumZ - 1) / 2.0f)), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
-	g_pCamera->Update();
+	m_pCamera = initStack.newObject<Camera>(90.0f, (float)screenWidth, (float)screenHeight, 0.1f, 100.f);
+	m_pCamera->LookAt(Point(0.0f, 0.0f, 9.0f + (float(kNumZ - 1) / 2.0f)), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	m_pCamera->Update();
 
-	glGenBuffers(1, &g_uniformsBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, g_uniformsBuffer);
+	glGenBuffers(1, &m_uniformsBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_uniformsBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniforms), NULL, GL_DYNAMIC_DRAW);
 
-	glGenBuffers(1, &g_shaderStorageBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_shaderStorageBuffer);
+	glGenBuffers(1, &m_shaderStorageBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_shaderStorageBuffer);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
 
-	glGenBuffers(1, &g_indirectDrawBuffer);
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, g_indirectDrawBuffer);
+	glGenBuffers(1, &m_indirectDrawBuffer);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawBuffer);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), NULL, GL_STATIC_DRAW);
 	DrawElementsIndirectCommand *cmd = (DrawElementsIndirectCommand *)glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, kNumDraws * sizeof(DrawElementsIndirectCommand), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	for (uint32_t i = 0; i < kNumDraws; ++i)
 	{
-		cmd[i].count = g_pMesh->getNumIndices();
+		cmd[i].count = m_pMesh->getNumIndices();
 		cmd[i].instanceCount = 1;
 		cmd[i].firstIndex = 0;
 		cmd[i].baseVertex = 0;
@@ -132,8 +121,8 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 	}
 	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
 
-	glGenBuffers(1, &g_materialBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, g_materialBuffer);
+	glGenBuffers(1, &m_materialBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_materialBuffer);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(MaterialProperties), NULL, GL_STATIC_DRAW);
 	MaterialProperties *materials = (MaterialProperties *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, kNumDraws * sizeof(MaterialProperties), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 	uint32_t materialIndex = 0;
@@ -175,8 +164,8 @@ void TestAZDOApp::Update()
 	float sina = sinf(Deg2Rad(angle));
 	float cosa = cosf(Deg2Rad(angle));
 	float radius = 4.5f + (float)(kNumZ - 1) / 2.0f;
-	g_pCamera->LookAt(Point(sina * radius, -sina * radius, cosa * radius), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
-	g_pCamera->Update();
+	m_pCamera->LookAt(Point(sina * radius, -sina * radius, cosa * radius), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	m_pCamera->Update();
 	angle += 0.25f;
 	if (angle >= 360.0f)
 		angle -= 360.0f;
@@ -185,20 +174,20 @@ void TestAZDOApp::Update()
 void TestAZDOApp::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(g_pShader->GetProgram());
+	glUseProgram(m_pShader->GetProgram());
 
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, g_uniformsBuffer);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniformsBuffer);
 	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
 		sizeof(Uniforms),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-	block->viewMatrix = g_pCamera->GetViewMatrix();
-	block->projectionMatrix = g_pCamera->GetProjectionMatrix();
+	block->viewMatrix = m_pCamera->GetViewMatrix();
+	block->projectionMatrix = m_pCamera->GetProjectionMatrix();
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
 	Matrix44 modelMatrix;
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, g_shaderStorageBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_shaderStorageBuffer);
 	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
 		0,
 		sizeof(Transforms),
@@ -224,12 +213,12 @@ void TestAZDOApp::Render()
 	}
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, g_materialBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_materialBuffer);
 
-	glBindVertexArray(g_pMesh->getVertexArrayObject());
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_pMesh->getIndexBuffer());
+	glBindVertexArray(m_pMesh->getVertexArrayObject());
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pMesh->getIndexBuffer());
 
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, g_indirectDrawBuffer);
+	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawBuffer);
 
 	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, BUFFER_OFFSET(0), kNumDraws, 0);
 }

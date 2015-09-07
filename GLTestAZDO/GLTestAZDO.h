@@ -1,5 +1,9 @@
 #pragma once
 
+class Camera;
+class Shader;
+class Mesh;
+
 class TestAZDOApp
 {
 public:
@@ -9,5 +13,16 @@ public:
 	void Update();
 	void Render();
 private:
+	Camera	*m_pCamera;
+	Shader	*m_pShader;
+	Shader	*m_pComputeShader;
+	Mesh	*m_pMesh;
 
+	GLuint	m_vertexArrayObject;
+	GLuint	m_vertexBufferName;
+	GLuint  m_indexBufferName;
+	GLuint	m_uniformsBuffer;
+	GLuint	m_shaderStorageBuffer;
+	GLuint	m_indirectDrawBuffer;
+	GLuint	m_materialBuffer;
 };
