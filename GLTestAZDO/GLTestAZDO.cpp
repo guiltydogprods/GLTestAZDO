@@ -10,9 +10,9 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-const uint32_t kNumX = 10;	// 20;
-const uint32_t kNumZ = 10;	// 20;
-const uint32_t kNumY = 10;	// 20;
+const uint32_t kNumX = 20;	// 20;
+const uint32_t kNumZ = 20;	// 20;
+const uint32_t kNumY = 20;	// 20;
 const uint32_t kNumDraws = kNumX * kNumZ * kNumY;
 
 struct Uniforms
@@ -222,7 +222,7 @@ void TestAZDOApp::Render()
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_drawCandidatesBuffer);
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_drawCommandBuffer);
 
-	glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniformsBuffer);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniformsBuffer);
 	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
 		sizeof(Uniforms),

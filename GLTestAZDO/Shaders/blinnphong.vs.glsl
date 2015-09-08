@@ -17,7 +17,7 @@ layout(binding = 0, std140) uniform MODEL_MATRIX_BLOCK
 };
 */
 
-layout(binding = 1, std140) uniform TRANSFORM_BLOCK
+layout(binding = 0, std140) uniform TRANSFORM_BLOCK
 {
 	mat4    view_matrix;
 	mat4    proj_matrix;
