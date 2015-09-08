@@ -153,11 +153,11 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 
 	delete[] pDraws;
 	*/
-	glGenBuffers(1, &m_drawCommandBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_drawCommandBuffer);
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_MAP_READ_BIT);
+//	glGenBuffers(1, &m_drawCommandBuffer);
+//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_drawCommandBuffer);
+//	glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_MAP_READ_BIT);
 
-	/*
+	
 	glGenBuffers(1, &m_indirectDrawBuffer);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawBuffer);
 	glBufferData(GL_DRAW_INDIRECT_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_STATIC_DRAW);
@@ -171,7 +171,7 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 		cmd[i].baseInstance = i;
 	}
 	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
-	*/
+	
 
 	glGenBuffers(1, &m_materialBuffer);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_materialBuffer);
