@@ -49,7 +49,7 @@ layout (binding = 0, offset = 0) uniform atomic_uint commandCounter;
 
 void main(void)
 {
-#if 1
+#if 9
     mat4 view_matrix = transform_array[0];
     mat4 proj_matrix = transform_array[1];
     mat4 view_proj_matrix = transform_array[2];
@@ -60,15 +60,15 @@ void main(void)
 
     vec4 position = view_proj_matrix * thisModelMatrix * vec4(thisDraw.sphereCenter, 1.0);
 
-    if ((abs(position.x) - thisDraw.sphereRadius) < (position.w * 1.0) &&
-        (abs(position.y) - thisDraw.sphereRadius) < (position.w * 1.0))
+//    if ((abs(position.x) - thisDraw.sphereRadius) < (position.w * 1.0) &&
+//        (abs(position.y) - thisDraw.sphereRadius) < (position.w * 1.0))
     {
         uint outDrawIndex = atomicCounterIncrement(commandCounter);
 
         command[outDrawIndex].indexCount = thisDraw.indexCount;
         command[outDrawIndex].instanceCount = 1;
-        command[outDrawIndex].firstIndex = thisDraw.firstIndex;
+		command[outDrawIndex].firstIndex = 0;	// thisDraw.firstIndex;
 		command[outDrawIndex].baseVertex = 0;
-        command[outDrawIndex].baseInstance = uint(gl_GlobalInvocationID.x);
+		command[outDrawIndex].baseInstance = 0;	// uint(gl_GlobalInvocationID.x);
     }
 }

@@ -23,7 +23,7 @@ private:
 	GLuint  m_indexBufferName;
 	GLuint	m_uniformsBuffer;
 	GLuint	m_modelMatrixBuffer;
-	GLuint	m_indirectDrawBuffer;
+//	GLuint	m_indirectDrawBuffer;
 	GLuint	m_materialBuffer;
 	GLuint	m_parameterBuffer;
 	GLuint	m_drawCandidatesBuffer;
