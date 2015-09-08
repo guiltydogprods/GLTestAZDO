@@ -12,13 +12,9 @@ layout(binding = 0, std140) uniform MODEL_MATRIX_BLOCK
 
 layout(binding = 1, std140) uniform TRANSFORM_BLOCK
 {
-#if 1
 	mat4    view_matrix;
 	mat4    proj_matrix;
 	mat4    view_proj_matrix;
-#else
-	mat4    transform_array[3];
-#endif
 };
 
 /*

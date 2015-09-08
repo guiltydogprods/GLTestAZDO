@@ -164,22 +164,6 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_drawCommandBuffer);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_MAP_READ_BIT);
 
-	/*
-	glGenBuffers(1, &m_indirectDrawBuffer);
-	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawBuffer);
-	glBufferData(GL_DRAW_INDIRECT_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_STATIC_DRAW);
-	DrawElementsIndirectCommand *cmd = (DrawElementsIndirectCommand *)glMapBufferRange(GL_DRAW_INDIRECT_BUFFER, 0, kNumDraws * sizeof(DrawElementsIndirectCommand), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
-	for (uint32_t i = 0; i < kNumDraws; ++i)
-	{
-		cmd[i].count = m_pMesh->getNumIndices();
-		cmd[i].instanceCount = 1;
-		cmd[i].firstIndex = 0;
-		cmd[i].baseVertex = 0;
-		cmd[i].baseInstance = i;
-	}
-	glUnmapBuffer(GL_DRAW_INDIRECT_BUFFER);
-	*/
-
 	glGenBuffers(1, &m_materialBuffer);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_materialBuffer);
 	glBufferData(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(MaterialProperties), NULL, GL_STATIC_DRAW);
@@ -259,7 +243,7 @@ void TestAZDOApp::Render()
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_modelMatrixBuffer);
 	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
-		sizeof(Transforms),
+		sizeof(Transforms),	// * kNumDraws,
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
 	uint32_t modelIndex = 0;
@@ -293,13 +277,11 @@ void TestAZDOApp::Render()
 	glBindVertexArray(m_pMesh->getVertexArrayObject());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pMesh->getIndexBuffer());
 
-//	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawBuffer);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_drawCommandBuffer);
 	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
 
 	glUseProgram(m_pShader->GetProgram());
 
-// 	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, BUFFER_OFFSET(0), kNumDraws, 0);
 	glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, 0, 0, kNumDraws, 0);
 }
 
