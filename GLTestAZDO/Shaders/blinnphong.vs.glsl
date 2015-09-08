@@ -10,26 +10,12 @@ layout(binding = 0, std140) readonly buffer MODEL_MATRIX_BLOCK
 	mat4    model_matrix[];
 };
 
-/*
-layout(binding = 0, std140) uniform MODEL_MATRIX_BLOCK
-{
-	mat4    model_matrix[1024];
-};
-*/
-
 layout(binding = 0, std140) uniform TRANSFORM_BLOCK
 {
 	mat4    view_matrix;
 	mat4    proj_matrix;
 	mat4    view_proj_matrix;
 };
-
-/*
-layout (std430, binding = 0) readonly buffer OBJECT_TRANSFORMS
-{
-	mat4 model_matrix[];
-};
-*/
 
 out VS_OUT
 {

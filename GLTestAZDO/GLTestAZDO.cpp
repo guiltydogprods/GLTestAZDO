@@ -138,24 +138,7 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 		}
 		glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(CandidateDraw), pDraws, 0);
 	}
-	/*
-	CandidateDraw* pDraws = new CandidateDraw[CANDIDATE_COUNT];
 
-	int i;
-
-	for (i = 0; i < CANDIDATE_COUNT; i++)
-	{
-		object.get_sub_object_info(i % object.get_sub_object_count(), first, count);
-		pDraws[i].sphereCenter = vmath::vec3(0.0f);
-		pDraws[i].sphereRadius = 4.0f;
-		pDraws[i].firstVertex = first;
-		pDraws[i].vertexCount = count;
-	}
-
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, CANDIDATE_COUNT * sizeof(CandidateDraw), pDraws, 0);
-
-	delete[] pDraws;
-	*/
 	glGenBuffers(1, &m_drawCommandBuffer);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_drawCommandBuffer);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_MAP_READ_BIT);
@@ -262,7 +245,7 @@ void TestAZDOApp::Render()
 
 	glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_materialBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_materialBuffer);
 
 	glBindVertexArray(m_pMesh->getVertexArrayObject());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pMesh->getIndexBuffer());

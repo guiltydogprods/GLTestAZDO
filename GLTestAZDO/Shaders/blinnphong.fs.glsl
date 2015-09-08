@@ -20,7 +20,7 @@ struct MaterialProperties
 };
 
 // Material properties
-layout (std430, binding = 2) readonly buffer MATERIALS
+layout (std430, binding = 1) readonly buffer MATERIALS
 {
 	MaterialProperties materials[];
 };
