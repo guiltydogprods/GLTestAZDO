@@ -22,7 +22,7 @@ private:
 	GLuint	m_vertexBufferName;
 	GLuint  m_indexBufferName;
 	GLuint	m_uniformsBuffer;
-	GLuint	m_shaderStorageBuffer;
+	GLuint	m_modelMatrixBuffer;
 	GLuint	m_indirectDrawBuffer;
 	GLuint	m_materialBuffer;
 	GLuint	m_parameterBuffer;

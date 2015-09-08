@@ -5,16 +5,28 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec4 texCoord;
 
-layout (std140, binding = 0) uniform FRAME_DATA
+layout(binding = 0, std140) uniform MODEL_MATRIX_BLOCK
 {
-	mat4 view_matrix;
-	mat4 proj_matrix;
+	mat4    model_matrix[1024];
 };
 
+layout(binding = 1, std140) uniform TRANSFORM_BLOCK
+{
+#if 1
+	mat4    view_matrix;
+	mat4    proj_matrix;
+	mat4    view_proj_matrix;
+#else
+	mat4    transform_array[3];
+#endif
+};
+
+/*
 layout (std430, binding = 0) readonly buffer OBJECT_TRANSFORMS
 {
 	mat4 model_matrix[];
 };
+*/
 
 out VS_OUT
 {

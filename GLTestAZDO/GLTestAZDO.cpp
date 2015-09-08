@@ -112,9 +112,13 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 	glBindBuffer(GL_UNIFORM_BUFFER, m_uniformsBuffer);
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniforms), NULL, GL_DYNAMIC_DRAW);
 
-	glGenBuffers(1, &m_shaderStorageBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_shaderStorageBuffer);
-	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
+	glGenBuffers(1, &m_modelMatrixBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_modelMatrixBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, kNumDraws * sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
+//	glBufferStorage(GL_UNIFORM_BUFFER, 1024 * sizeof(vmath::mat4), nullptr, GL_MAP_WRITE_BIT);
+
+//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_modelMatrixBuffer);
+//	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &m_parameterBuffer);
 	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
@@ -228,7 +232,7 @@ void TestAZDOApp::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(m_pShader->GetProgram());
 
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniformsBuffer);
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniformsBuffer);
 	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
 		sizeof(Uniforms),
@@ -239,8 +243,10 @@ void TestAZDOApp::Render()
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
 	Matrix44 modelMatrix;
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_shaderStorageBuffer);
-	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
+//	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_modelMatrixBuffer);
+//	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_modelMatrixBuffer);
+	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
 		sizeof(Transforms),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
@@ -263,7 +269,8 @@ void TestAZDOApp::Render()
 			}
 		}
 	}
-	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+//	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_materialBuffer);
 
