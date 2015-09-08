@@ -116,12 +116,8 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 	glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniforms), NULL, GL_DYNAMIC_DRAW);
 
 	glGenBuffers(1, &m_modelMatrixBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_modelMatrixBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, kNumDraws * sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
-//	glBufferStorage(GL_UNIFORM_BUFFER, 1024 * sizeof(vmath::mat4), nullptr, GL_MAP_WRITE_BIT);
-
-//	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_modelMatrixBuffer);
-//	glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_modelMatrixBuffer);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), nullptr, GL_MAP_WRITE_BIT);
 
 	glGenBuffers(1, &m_parameterBuffer);
 	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
@@ -223,8 +219,8 @@ void TestAZDOApp::Render()
 	glClearBufferSubData(GL_ATOMIC_COUNTER_BUFFER, GL_R32UI, 0, sizeof(GLuint), GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
 
 	// Bind shader storage buffers
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_drawCandidatesBuffer);
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_drawCommandBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_drawCandidatesBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_drawCommandBuffer);
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniformsBuffer);
 	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
@@ -238,13 +234,8 @@ void TestAZDOApp::Render()
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
 	Matrix44 modelMatrix;
-//	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_modelMatrixBuffer);
-//	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER,
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_modelMatrixBuffer);
-	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
-		0,
-		sizeof(Transforms),	// * kNumDraws,
-		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_modelMatrixBuffer);
+	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Transforms), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
 	uint32_t modelIndex = 0;
 	float startY = -(float)(kNumY - 1) / 2.0f;
@@ -264,8 +255,7 @@ void TestAZDOApp::Render()
 			}
 		}
 	}
-//	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-	glUnmapBuffer(GL_UNIFORM_BUFFER);
+	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
 	glUseProgram(m_pComputeShader->GetProgram());
 	glDispatchCompute(kNumDraws / 16, 1, 1);

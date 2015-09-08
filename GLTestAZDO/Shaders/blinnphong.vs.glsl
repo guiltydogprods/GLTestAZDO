@@ -5,10 +5,17 @@ layout(location = 0) in vec3 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec4 texCoord;
 
+layout(binding = 0, std140) readonly buffer MODEL_MATRIX_BLOCK
+{
+	mat4    model_matrix[];
+};
+
+/*
 layout(binding = 0, std140) uniform MODEL_MATRIX_BLOCK
 {
 	mat4    model_matrix[1024];
 };
+*/
 
 layout(binding = 1, std140) uniform TRANSFORM_BLOCK
 {
