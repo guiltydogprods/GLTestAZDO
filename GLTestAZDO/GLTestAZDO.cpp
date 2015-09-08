@@ -19,6 +19,7 @@ struct Uniforms
 {
 	Matrix44    viewMatrix;
 	Matrix44	projectionMatrix;
+	Matrix44	viewProjMatrix;
 };
 
 struct Transforms
@@ -230,7 +231,13 @@ void TestAZDOApp::Update()
 void TestAZDOApp::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(m_pShader->GetProgram());
+
+	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_parameterBuffer);
+	glClearBufferSubData(GL_ATOMIC_COUNTER_BUFFER, GL_R32UI, 0, sizeof(GLuint), GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
+
+	// Bind shader storage buffers
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_drawCandidatesBuffer);
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_drawCommandBuffer);
 
 	glBindBufferBase(GL_UNIFORM_BUFFER, 1, m_uniformsBuffer);
 	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
@@ -240,6 +247,7 @@ void TestAZDOApp::Render()
 
 	block->viewMatrix = m_pCamera->GetViewMatrix();
 	block->projectionMatrix = m_pCamera->GetProjectionMatrix();
+	block->viewProjMatrix = m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix();
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
 	Matrix44 modelMatrix;
@@ -272,12 +280,19 @@ void TestAZDOApp::Render()
 //	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
+	glUseProgram(m_pComputeShader->GetProgram());
+	glDispatchCompute(kNumDraws / 16, 1, 1);
+
+	glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
+
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_materialBuffer);
 
 	glBindVertexArray(m_pMesh->getVertexArrayObject());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pMesh->getIndexBuffer());
 
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawBuffer);
+
+	glUseProgram(m_pShader->GetProgram());
 
 	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, BUFFER_OFFSET(0), kNumDraws, 0);
 }
