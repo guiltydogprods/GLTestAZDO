@@ -60,15 +60,15 @@ void main(void)
 
     vec4 position = view_proj_matrix * thisModelMatrix * vec4(thisDraw.sphereCenter, 1.0);
 
-//    if ((abs(position.x) - thisDraw.sphereRadius) < (position.w * 1.0) &&
-//        (abs(position.y) - thisDraw.sphereRadius) < (position.w * 1.0))
+    if ((abs(position.x) - thisDraw.sphereRadius) < (position.w * 1.0) &&
+        (abs(position.y) - thisDraw.sphereRadius) < (position.w * 1.0))
     {
         uint outDrawIndex = atomicCounterIncrement(commandCounter);
 
         command[outDrawIndex].indexCount = thisDraw.indexCount;
         command[outDrawIndex].instanceCount = 1;
-		command[outDrawIndex].firstIndex = 0;	// thisDraw.firstIndex;
+		command[outDrawIndex].firstIndex = 0;
 		command[outDrawIndex].baseVertex = 0;
-		command[outDrawIndex].baseInstance = 0;	// uint(gl_GlobalInvocationID.x);
+		command[outDrawIndex].baseInstance = uint(gl_GlobalInvocationID.x);
     }
 }

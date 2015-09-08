@@ -18,6 +18,8 @@ private:
 	Shader	*m_pComputeShader;
 	Mesh	*m_pMesh;
 
+	uint32_t m_screenWidth;
+	uint32_t m_screenHeight;
 	GLuint	m_vertexArrayObject;
 	GLuint	m_vertexBufferName;
 	GLuint  m_indexBufferName;

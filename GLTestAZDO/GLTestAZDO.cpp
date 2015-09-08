@@ -99,6 +99,8 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 , m_pShader(nullptr)
 , m_pComputeShader(nullptr)
 , m_pMesh(nullptr)
+, m_screenWidth(screenWidth)
+, m_screenHeight(screenHeight)
 {
 	m_pMesh = initStack.newObject<Mesh>("assets/Donut.s3d", allocator);
 
@@ -134,7 +136,7 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 
 		for (uint32_t i = 0; i < kNumDraws; ++i)
 		{
-			pDraws[i].sphere = Vector4(0.0f, 0.0f, 0.0f, 1.0f);
+			pDraws[i].sphere = Vector4(0.0f, 0.0f, 0.0f, 0.5f);
 			pDraws[i].firstIndex = 0;
 			pDraws[i].indexCount = m_pMesh->getNumIndices();			
 		}
@@ -231,6 +233,7 @@ void TestAZDOApp::Update()
 void TestAZDOApp::Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, m_screenWidth, m_screenHeight);
 
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_parameterBuffer);
 	glClearBufferSubData(GL_ATOMIC_COUNTER_BUFFER, GL_R32UI, 0, sizeof(GLuint), GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
@@ -292,9 +295,11 @@ void TestAZDOApp::Render()
 
 //	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_indirectDrawBuffer);
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_drawCommandBuffer);
+	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
 
 	glUseProgram(m_pShader->GetProgram());
 
-	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, BUFFER_OFFSET(0), kNumDraws, 0);
+// 	glMultiDrawElementsIndirect(GL_TRIANGLES, GL_UNSIGNED_INT, BUFFER_OFFSET(0), kNumDraws, 0);
+	glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, 0, 0, kNumDraws, 0);
 }
 
