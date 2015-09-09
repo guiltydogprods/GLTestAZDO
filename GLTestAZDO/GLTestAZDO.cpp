@@ -203,7 +203,7 @@ void TestAZDOApp::Render()
 
 	// Bind candidate draws buffer.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_drawCandidatesBuffer);
-	// Bind command buffer that cull shader writes to.
+	// Bind command buffer, filled in by cull shader.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_drawCommandBuffer);
 
 	// Bind static transforms block.
