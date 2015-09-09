@@ -15,14 +15,14 @@ const uint32_t kNumZ = 22;	// 20;
 const uint32_t kNumY = 22;	// 20;
 const uint32_t kNumDraws = kNumX * kNumZ * kNumY;
 
-struct Uniforms
+struct Transforms
 {
 	Matrix44    viewMatrix;
 	Matrix44	projectionMatrix;
 	Matrix44	viewProjMatrix;
 };
 
-struct Transforms
+struct ModelMatrices
 {
 	Matrix44	modelMatrices[kNumDraws];
 };
@@ -110,13 +110,13 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 	m_pCamera->LookAt(Point(0.0f, 0.0f, 9.0f + (float(kNumZ - 1) / 2.0f)), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
 	m_pCamera->Update();
 
-	glGenBuffers(1, &m_uniformsBuffer);
-	glBindBuffer(GL_UNIFORM_BUFFER, m_uniformsBuffer);
-	glBufferData(GL_UNIFORM_BUFFER, sizeof(Uniforms), NULL, GL_DYNAMIC_DRAW);
+	glGenBuffers(1, &m_transformsBuffer);
+	glBindBuffer(GL_UNIFORM_BUFFER, m_transformsBuffer);
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(Transforms), NULL, GL_DYNAMIC_DRAW);
 
-	glGenBuffers(1, &m_modelMatrixBuffer);
-	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_modelMatrixBuffer);
-	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(Transforms), nullptr, GL_MAP_WRITE_BIT);
+	glGenBuffers(1, &m_modelMatricesBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_modelMatricesBuffer);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(ModelMatrices), nullptr, GL_MAP_WRITE_BIT);
 
 	glGenBuffers(1, &m_parameterBuffer);
 	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
@@ -197,17 +197,20 @@ void TestAZDOApp::Render()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, m_screenWidth, m_screenHeight);
 
+	// Bind atomic counter, to count visible draws.
 	glBindBufferBase(GL_ATOMIC_COUNTER_BUFFER, 0, m_parameterBuffer);
 	glClearBufferSubData(GL_ATOMIC_COUNTER_BUFFER, GL_R32UI, 0, sizeof(GLuint), GL_RED_INTEGER, GL_UNSIGNED_INT, nullptr);
 
-	// Bind shader storage buffers
+	// Bind candidate draws buffer.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_drawCandidatesBuffer);
+	// Bind command buffer that cull shader writes to.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_drawCommandBuffer);
 
-	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_uniformsBuffer);
-	Uniforms *block = (Uniforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
+	// Bind static transforms block.
+	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_transformsBuffer);
+	Transforms *block = (Transforms *)glMapBufferRange(GL_UNIFORM_BUFFER,
 		0,
-		sizeof(Uniforms),
+		sizeof(Transforms),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
 	block->viewMatrix = m_pCamera->GetViewMatrix();
@@ -216,8 +219,9 @@ void TestAZDOApp::Render()
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
 	Matrix44 modelMatrix;
-	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_modelMatrixBuffer);
-	Transforms *transformsBlock = (Transforms *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, sizeof(Transforms), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
+	// Bind and write model matrices buffer.
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_modelMatricesBuffer);
+	ModelMatrices *transformsBlock = (ModelMatrices *)glMapBufferRange(GL_SHADER_STORAGE_BUFFER, 0, sizeof(ModelMatrices), GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
 	uint32_t modelIndex = 0;
 	float startY = -(float)(kNumY - 1) / 2.0f;
@@ -239,21 +243,23 @@ void TestAZDOApp::Render()
 	}
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
+	// Use AABB Culling Compute Shader.
 	glUseProgram(m_pCullShader->GetProgram());
+	// Dispatch Culling Jobs.
 	glDispatchCompute(kNumDraws / 16, 1, 1);
-
+	// Ensure writes to command buffer have finished.
 	glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 
-	//Bind Material Buffer.
+	// Bind Material Buffer.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_materialBuffer);
 
-	//Bind Vertex and Index Buffers.
+	// Bind Vertex and Index Buffers.
 	glBindVertexArray(m_pMesh->getVertexArrayObject());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pMesh->getIndexBuffer());
 
-	//Bind Draw Command Buffer.
+	// Bind Draw Command Buffer.
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_drawCommandBuffer);
-	//Bind Parameter Buffer (holds draw count).
+	// Bind Parameter Buffer (holds draw count).
 	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
 
 	/*
@@ -266,9 +272,9 @@ void TestAZDOApp::Render()
 	glUnmapNamedBuffer(m_parameterBuffer);
 	printf("Draw Count = %d\n", drawCount);
 	*/
-	//Use Blinn-Phong Shader.
+	// Use Blinn-Phong Shader.
 	glUseProgram(m_pBlinnPhongShader->GetProgram());
-	//Dispatch Draws
+	// Dispatch Draw Commands. Num draws comes from parameter buffer.
 	glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, 0, 0, kNumDraws, 0);
 
 

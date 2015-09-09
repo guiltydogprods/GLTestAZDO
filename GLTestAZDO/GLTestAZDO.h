@@ -23,8 +23,8 @@ private:
 	GLuint	m_vertexArrayObject;
 	GLuint	m_vertexBufferName;
 	GLuint  m_indexBufferName;
-	GLuint	m_uniformsBuffer;
-	GLuint	m_modelMatrixBuffer;
+	GLuint	m_transformsBuffer;
+	GLuint	m_modelMatricesBuffer;
 	GLuint	m_materialBuffer;
 	GLuint	m_parameterBuffer;
 	GLuint	m_drawCandidatesBuffer;
