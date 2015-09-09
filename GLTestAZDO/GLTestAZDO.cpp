@@ -121,7 +121,7 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 
 	glGenBuffers(1, &m_parameterBuffer);
 	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
-	glBufferStorage(GL_PARAMETER_BUFFER_ARB, 256, nullptr, 0);
+	glBufferStorage(GL_PARAMETER_BUFFER_ARB, 256, nullptr, GL_MAP_READ_BIT);
 
 	glGenBuffers(1, &m_drawCandidatesBuffer);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_drawCandidatesBuffer);
@@ -253,8 +253,21 @@ void TestAZDOApp::Render()
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_drawCommandBuffer);
 	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
 
+	/*
+	uint32_t drawCount = 0;
+	uint32_t *countPtr = (uint32_t *)glMapNamedBufferRange(m_parameterBuffer, 0, sizeof(uint32_t), GL_MAP_READ_BIT);
+	if (countPtr)
+	{
+		drawCount = *countPtr;
+	}
+	glUnmapNamedBuffer(m_parameterBuffer);
+	printf("Draw Count = %d\n", drawCount);
+	*/
+
 	glUseProgram(m_pShader->GetProgram());
 
 	glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, 0, 0, kNumDraws, 0);
+
+
 }
 

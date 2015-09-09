@@ -20,12 +20,12 @@ struct DrawElementsIndirectCommand
 
 layout(binding = 0, std140) readonly buffer MODEL_MATRIX_BLOCK
 {
-	mat4    model_matrix[];
+	mat4    model_matrices[];
 };
 
 layout(binding = 1, std430) buffer CandidateDraws
 {
-    CandidateDraw draw[];
+    CandidateDraw candidateDraws[];
 };
 
 layout (binding = 2, std430) writeonly buffer OutputDraws
@@ -44,17 +44,17 @@ layout (binding = 0, offset = 0) uniform atomic_uint commandCounter;
 
 void main(void)
 {
-    const CandidateDraw thisDraw = draw[gl_GlobalInvocationID.x];
-    const mat4 thisModelMatrix = model_matrix[gl_GlobalInvocationID.x];
+	const CandidateDraw draw = candidateDraws[gl_GlobalInvocationID.x];
+    const mat4 model_matrix = model_matrices[gl_GlobalInvocationID.x];
 
-    vec4 position = view_proj_matrix * thisModelMatrix * vec4(thisDraw.sphere.xyz, 1.0);
+	vec4 position = view_proj_matrix * model_matrix * vec4(draw.sphere.xyz, 1.0);
 
-	if ((abs(position.x) - thisDraw.sphere.w) < (position.w * 1.0) &&
-		(abs(position.y) - thisDraw.sphere.w) < (position.w * 1.0))
+	if (all(lessThan(abs(position.xy) - draw.sphere.ww, position.ww * 1.0)))	//if ((abs(position.x) - thisDraw.sphere.w) < (position.w * 0.5) && (abs(position.y) - thisDraw.sphere.w) < (position.w * 0.5) &&
+
 	{
         uint outDrawIndex = atomicCounterIncrement(commandCounter);
 
-        command[outDrawIndex].indexCount = thisDraw.indexCount;
+        command[outDrawIndex].indexCount = draw.indexCount;
         command[outDrawIndex].instanceCount = 1;
 		command[outDrawIndex].firstIndex = 0;
 		command[outDrawIndex].baseVertex = 0;

@@ -26,9 +26,17 @@ void CheckGLError();
 				{
 					printf("Error: compiling vertexShader\n%s\n", infoLog);
 				}
-				else
+				else if (shaderType == GL_FRAGMENT_SHADER)
 				{
 					printf("Error: compiling fragmentShader\n%s\n", infoLog);
+				}
+				else if (shaderType == GL_COMPUTE_SHADER)
+				{
+					printf("Error: compiling computeShader\n%s\n", infoLog);
+				}
+				else
+				{
+					printf("Error: unknown shader type\n%s\n", infoLog);
 				}
 				free(infoLog);
 			}
