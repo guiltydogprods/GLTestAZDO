@@ -14,8 +14,8 @@ public:
 	void Render();
 private:
 	Camera	*m_pCamera;
-	Shader	*m_pShader;
-	Shader	*m_pComputeShader;
+	Shader	*m_pBlinnPhongShader;
+	Shader	*m_pCullShader;
 	Mesh	*m_pMesh;
 
 	uint32_t m_screenWidth;
@@ -25,7 +25,6 @@ private:
 	GLuint  m_indexBufferName;
 	GLuint	m_uniformsBuffer;
 	GLuint	m_modelMatrixBuffer;
-//	GLuint	m_indirectDrawBuffer;
 	GLuint	m_materialBuffer;
 	GLuint	m_parameterBuffer;
 	GLuint	m_drawCandidatesBuffer;

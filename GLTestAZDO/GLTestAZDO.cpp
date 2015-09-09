@@ -10,9 +10,9 @@
 
 #define BUFFER_OFFSET(i) ((char *)NULL + (i))
 
-const uint32_t kNumX = 20;	// 20;
-const uint32_t kNumZ = 20;	// 20;
-const uint32_t kNumY = 20;	// 20;
+const uint32_t kNumX = 22;	// 20;
+const uint32_t kNumZ = 22;	// 20;
+const uint32_t kNumY = 22;	// 20;
 const uint32_t kNumDraws = kNumX * kNumZ * kNumY;
 
 struct Uniforms
@@ -29,11 +29,10 @@ struct Transforms
 
 struct CandidateDraw
 {
-	Vector4		sphere;			//x, y & z = center w = radius
+	float		aabbMin[3];
 	uint32_t	firstIndex;
+	float		aabbMax[3];
 	uint32_t	indexCount;
-	uint32_t : 32;
-	uint32_t : 32;
 };
 
 struct DrawElementsIndirectCommand
@@ -96,16 +95,16 @@ void CheckGLError()
 
 TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllocator &allocator, ScopeStack &initStack)
 : m_pCamera(nullptr)
-, m_pShader(nullptr)
-, m_pComputeShader(nullptr)
+, m_pBlinnPhongShader(nullptr)
+, m_pCullShader(nullptr)
 , m_pMesh(nullptr)
 , m_screenWidth(screenWidth)
 , m_screenHeight(screenHeight)
 {
 	m_pMesh = initStack.newObject<Mesh>("assets/Donut.s3d", allocator);
 
-	m_pShader = initStack.newObject<Shader>("Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
-	m_pComputeShader = initStack.newObject<Shader>("Shaders/cull.cs.glsl", allocator);
+	m_pBlinnPhongShader = initStack.newObject<Shader>("Shaders/blinnphong.vs.glsl", "Shaders/blinnphong.fs.glsl", allocator);
+	m_pCullShader = initStack.newObject<Shader>("Shaders/cull.cs.glsl", allocator);
 
 	m_pCamera = initStack.newObject<Camera>(90.0f, (float)screenWidth, (float)screenHeight, 0.1f, 100.f);
 	m_pCamera->LookAt(Point(0.0f, 0.0f, 9.0f + (float(kNumZ - 1) / 2.0f)), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
@@ -132,7 +131,7 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 
 		for (uint32_t i = 0; i < kNumDraws; ++i)
 		{
-			pDraws[i].sphere = Vector4(0.0f, 0.0f, 0.0f, 0.5f);
+			m_pMesh->getAABB(pDraws[i].aabbMin, pDraws[i].aabbMax);
 			pDraws[i].firstIndex = 0;
 			pDraws[i].indexCount = m_pMesh->getNumIndices();			
 		}
@@ -240,17 +239,21 @@ void TestAZDOApp::Render()
 	}
 	glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
-	glUseProgram(m_pComputeShader->GetProgram());
+	glUseProgram(m_pCullShader->GetProgram());
 	glDispatchCompute(kNumDraws / 16, 1, 1);
 
 	glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
 
+	//Bind Material Buffer.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_materialBuffer);
 
+	//Bind Vertex and Index Buffers.
 	glBindVertexArray(m_pMesh->getVertexArrayObject());
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_pMesh->getIndexBuffer());
 
+	//Bind Draw Command Buffer.
 	glBindBuffer(GL_DRAW_INDIRECT_BUFFER, m_drawCommandBuffer);
+	//Bind Parameter Buffer (holds draw count).
 	glBindBuffer(GL_PARAMETER_BUFFER_ARB, m_parameterBuffer);
 
 	/*
@@ -263,9 +266,9 @@ void TestAZDOApp::Render()
 	glUnmapNamedBuffer(m_parameterBuffer);
 	printf("Draw Count = %d\n", drawCount);
 	*/
-
-	glUseProgram(m_pShader->GetProgram());
-
+	//Use Blinn-Phong Shader.
+	glUseProgram(m_pBlinnPhongShader->GetProgram());
+	//Dispatch Draws
 	glMultiDrawElementsIndirectCountARB(GL_TRIANGLES, GL_UNSIGNED_INT, 0, 0, kNumDraws, 0);
 
 

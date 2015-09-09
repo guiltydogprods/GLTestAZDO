@@ -101,6 +101,8 @@
 		GLuint getVertexArrayObject()	{	return m_vertexArrayObject; }
 		GLuint getIndexBuffer()			{	return m_indexBuffer;		}
 		GLsizei getNumIndices()			{ return m_numIndices; }
+		void getAABB(float(&aabbMin)[3], float(&aabbMax)[3]);
+
 	private:
 		void LoadTextureChunk(ChunkId* chunk);
 		void LoadMaterialChunk(ChunkId *chunk);
@@ -111,4 +113,6 @@
 		GLuint	m_vertexBuffer;
 		GLuint  m_indexBuffer;
 		GLsizei m_numIndices;
+		float	m_aabbMin[3];
+		float	m_aabbMax[3];
 	};

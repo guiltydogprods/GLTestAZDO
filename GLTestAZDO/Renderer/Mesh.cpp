@@ -158,6 +158,12 @@ void CheckGLError();
 			uint32_t numIndices = m_numIndices = rendInfo[rend].numIndices;
 			uint32_t indicesSize = sizeof(uint32_t) * numIndices;
 			
+			m_aabbMin[0] = rendInfo->aabbMinX;
+			m_aabbMin[1] = rendInfo->aabbMinY;
+			m_aabbMin[2] = rendInfo->aabbMinZ;
+			m_aabbMax[0] = rendInfo->aabbMaxX;
+			m_aabbMax[1] = rendInfo->aabbMaxY;
+			m_aabbMax[2] = rendInfo->aabbMaxZ;
 //			MaterialPtr pMaterial = MaterialManager::Get()->Find(rendInfo[rend].materialHash);
 			uint32_t numStreams = srcVertexBuffer->m_numStreams;
 			for (uint32_t i = 0; i < numStreams; ++i) 
@@ -215,6 +221,15 @@ void CheckGLError();
 			ptr = LoadMeshChunkRecursive(ptr);
 		}
 		return ptr;
+	}
+
+	void Mesh::getAABB(float(&aabbMin)[3], float(&aabbMax)[3])
+	{
+		for (uint32_t i = 0; i < 3; ++i)
+		{
+			aabbMin[i] = m_aabbMin[i];
+			aabbMax[i] = m_aabbMax[i];
+		}
 	}
 
 
