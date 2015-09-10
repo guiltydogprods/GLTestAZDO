@@ -19,12 +19,12 @@ struct DrawElementsIndirectCommand
     uint baseInstance;
 };
 
-layout(binding = 0, std140) readonly buffer MODEL_MATRIX_BLOCK
+layout(binding = 0, std430) readonly buffer MODEL_MATRIX_BLOCK
 {
 	mat4    model_matrices[];
 };
 
-layout(binding = 1, std430) buffer CandidateDraws
+layout(binding = 1, std430) readonly buffer CandidateDraws
 {
     CandidateDraw candidateDraws[];
 };
