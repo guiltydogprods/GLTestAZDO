@@ -258,7 +258,7 @@ void TestAZDOApp::Render()
 	glUseProgram(m_pCullShader->GetProgram());
 	// Dispatch Culling Jobs.
 	glDispatchCompute(kNumDraws / 16, 1, 1);
-	// Ensure writes to command buffer have finished.
+	// Ensure writes to command amd visible matrices buffer have finished.
 	glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
 	// Bind Visible Matrices Buffer.
