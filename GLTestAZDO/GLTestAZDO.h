@@ -29,4 +29,5 @@ private:
 	GLuint	m_parameterBuffer;
 	GLuint	m_drawCandidatesBuffer;
 	GLuint	m_drawCommandBuffer;
+	GLuint	m_visibleMatricesBuffer;
 };

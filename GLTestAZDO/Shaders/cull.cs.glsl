@@ -8,6 +8,7 @@ struct CandidateDraw
 	uint firstIndex;
 	vec3 aabbMax;
     uint indexCount;
+	uint material_id;
 };
 
 struct DrawElementsIndirectCommand
@@ -32,6 +33,11 @@ layout(binding = 1, std430) readonly buffer CandidateDraws
 layout (binding = 2, std430) writeonly buffer OutputDraws
 {
     DrawElementsIndirectCommand command[];
+};
+
+layout (binding = 3, std430) writeonly buffer OutputMatrices
+{
+	mat4	visible_model_matrices[];
 };
 
 layout (binding = 0, std140) uniform TRANSFORM_BLOCK
@@ -65,11 +71,14 @@ void main(void)
 		{		
 			uint outDrawIndex = atomicCounterIncrement(commandCounter);
 
+			// Write out Draw Command.
 			command[outDrawIndex].indexCount = draw.indexCount;
 			command[outDrawIndex].instanceCount = 1;
 			command[outDrawIndex].firstIndex = 0;
 			command[outDrawIndex].baseVertex = 0;
-			command[outDrawIndex].baseInstance = uint(gl_GlobalInvocationID.x);
+			command[outDrawIndex].baseInstance = draw.material_id;
+			// Write out Model Matrix.
+			visible_model_matrices[outDrawIndex] = model_matrix;
 			break;
 		}
 	}

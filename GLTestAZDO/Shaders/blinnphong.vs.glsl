@@ -29,7 +29,7 @@ uniform vec3 light_pos = vec3(100.0, 100.0, 100.0);
 
 void main(void)
 {
-	mat4 mv_matrix = view_matrix * model_matrix[gl_BaseInstanceARB];
+	mat4 mv_matrix = view_matrix * model_matrix[gl_DrawIDARB];
 	vec4 P = mv_matrix * vec4(position, 1.0);
 
     vs_out.N = mat3(mv_matrix) * normal;

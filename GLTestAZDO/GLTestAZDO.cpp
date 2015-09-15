@@ -33,6 +33,10 @@ struct CandidateDraw
 	uint32_t	firstIndex;
 	float		aabbMax[3];
 	uint32_t	indexCount;
+	uint32_t	materialID;
+	uint32_t: 32;
+	uint32_t: 32;
+	uint32_t: 32;
 };
 
 struct DrawElementsIndirectCommand
@@ -133,7 +137,8 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 		{
 			m_pMesh->getAABB(pDraws[i].aabbMin, pDraws[i].aabbMax);
 			pDraws[i].firstIndex = 0;
-			pDraws[i].indexCount = m_pMesh->getNumIndices();			
+			pDraws[i].indexCount = m_pMesh->getNumIndices();	
+			pDraws[i].materialID = i;
 		}
 		glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(CandidateDraw), pDraws, 0);
 	}
@@ -141,6 +146,10 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 	glGenBuffers(1, &m_drawCommandBuffer);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_drawCommandBuffer);
 	glBufferStorage(GL_SHADER_STORAGE_BUFFER, kNumDraws * sizeof(DrawElementsIndirectCommand), nullptr, GL_MAP_READ_BIT);
+
+	glGenBuffers(1, &m_visibleMatricesBuffer);
+	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_visibleMatricesBuffer);
+	glBufferStorage(GL_SHADER_STORAGE_BUFFER, sizeof(ModelMatrices), nullptr, GL_MAP_READ_BIT);
 
 	glGenBuffers(1, &m_materialBuffer);
 	glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_materialBuffer);
@@ -203,8 +212,10 @@ void TestAZDOApp::Render()
 
 	// Bind candidate draws buffer.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_drawCandidatesBuffer);
-	// Bind command buffer, filled in by cull shader.
+	// Bind command buffer, written by cull shader.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_drawCommandBuffer);
+	// Bind visible matrices buffer, written by cull shader.
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_visibleMatricesBuffer);
 
 	// Bind static transforms block.
 	glBindBufferBase(GL_UNIFORM_BUFFER, 0, m_transformsBuffer);
@@ -248,8 +259,10 @@ void TestAZDOApp::Render()
 	// Dispatch Culling Jobs.
 	glDispatchCompute(kNumDraws / 16, 1, 1);
 	// Ensure writes to command buffer have finished.
-	glMemoryBarrier(GL_COMMAND_BARRIER_BIT);
+	glMemoryBarrier(GL_COMMAND_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT);
 
+	// Bind Visible Matrices Buffer.
+	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, m_visibleMatricesBuffer);
 	// Bind Material Buffer.
 	glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, m_materialBuffer);
 
