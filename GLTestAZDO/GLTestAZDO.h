@@ -10,8 +10,8 @@ public:
 	TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllocator &allocator, ScopeStack &initStack);
 	~TestAZDOApp();
 
-	void Update();
-	void Render();
+	void update();
+	void render();
 private:
 	Camera	*m_pCamera;
 	Shader	*m_pBlinnPhongShader;

@@ -30,7 +30,7 @@
 	
 	void Frustum::CalcPoints(Camera* pCamera)
 	{
-		Matrix44& camWorld = pCamera->GetWorldMatrix();
+		Matrix44& camWorld = pCamera->getWorldMatrix();
 		
 		Vector4 right = camWorld.GetAxisX();
 		Vector4 up = camWorld.GetAxisY();

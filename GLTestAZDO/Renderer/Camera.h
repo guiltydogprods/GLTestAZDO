@@ -20,23 +20,14 @@
 		Camera(float fieldOfView, float width, float height, float zNear, float zFar);
 		~Camera();
 
-		void Update();
+		void update();
 
-		void LookAt(Point position, Point at, Vector up);
-		void SetWorldMatrix(Matrix44& viewMatrix);
+		void lookAt(const Point& position, const Point& at, const Vector& up);
+		void setWorldMatrix(const Matrix44& viewMatrix);
 		
-		void SetPosition( float x, float y,  float z );
+		void setPosition( float x, float y,  float z );
 		
-		inline void SetPosition(Point position)						{	m_worldMatrix.SetAxisW(position.GetVector4());			}
 
-		inline Frustum& GetFrustum()								{	return m_frustum;							}
-		inline Vector	GetRightVector()							{	return Vector(m_worldMatrix.GetAxisX());	}
-		inline Vector	GetUpVector()								{	return Vector(m_worldMatrix.GetAxisY());	}
-		inline Vector	GetForwardVector()							{	return Vector(m_worldMatrix.GetAxisZ());	}
-		inline Point	GetPosition()								{	return Point(m_worldMatrix.GetAxisW());		}
-		inline Matrix44& GetViewMatrix()							{	return m_viewMatrix;						}
-		inline Matrix44& GetWorldMatrix()							{	return m_worldMatrix;						}
-		inline Matrix44& GetProjectionMatrix()						{	return m_projectionMatrix;					}
 
 	protected:
 		Frustum		m_frustum;

@@ -111,8 +111,8 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 	m_pCullShader = initStack.newObject<Shader>("Shaders/cull.cs.glsl", allocator);
 
 	m_pCamera = initStack.newObject<Camera>(90.0f, (float)screenWidth, (float)screenHeight, 0.1f, 100.f);
-	m_pCamera->LookAt(Point(0.0f, 0.0f, 9.0f + (float(kNumZ - 1) / 2.0f)), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
-	m_pCamera->Update();
+	m_pCamera->lookAt(Point(0.0f, 0.0f, 9.0f + (float(kNumZ - 1) / 2.0f)), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	m_pCamera->update();
 
 	glGenBuffers(1, &m_transformsBuffer);
 	glBindBuffer(GL_UNIFORM_BUFFER, m_transformsBuffer);
@@ -188,20 +188,20 @@ TestAZDOApp::~TestAZDOApp()
 	printf("TestAZDOApp dtor\n");
 }
 
-void TestAZDOApp::Update()
+void TestAZDOApp::update()
 {
 	static float angle = 0.0f;
 	float sina = sinf(Deg2Rad(angle));
 	float cosa = cosf(Deg2Rad(angle));
 	float radius = 4.5f + (float)(kNumZ - 1) / 2.0f;
-	m_pCamera->LookAt(Point(sina * radius, -sina * radius, cosa * radius), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
-	m_pCamera->Update();
+	m_pCamera->lookAt(Point(sina * radius, -sina * radius, cosa * radius), Point(0.0f, 0.0f, 0.0f), Vector(0.0f, 1.0f, 0.0f));
+	m_pCamera->update();
 	angle += 0.25f;
 	if (angle >= 360.0f)
 		angle -= 360.0f;
 }
 
-void TestAZDOApp::Render()
+void TestAZDOApp::render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glViewport(0, 0, m_screenWidth, m_screenHeight);
@@ -224,9 +224,9 @@ void TestAZDOApp::Render()
 		sizeof(Transforms),
 		GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT);
 
-	block->viewMatrix = m_pCamera->GetViewMatrix();
-	block->projectionMatrix = m_pCamera->GetProjectionMatrix();
-	block->viewProjMatrix = m_pCamera->GetProjectionMatrix() * m_pCamera->GetViewMatrix();
+	block->viewMatrix = m_pCamera->getViewMatrix();
+	block->projectionMatrix = m_pCamera->getProjectionMatrix();
+	block->viewProjMatrix = m_pCamera->getProjectionMatrix() * m_pCamera->getViewMatrix();
 	glUnmapBuffer(GL_UNIFORM_BUFFER);
 
 	Matrix44 modelMatrix;

@@ -22,7 +22,7 @@
 		fprintf(stdout, "Camera dtor\n");
 	}
 
-	void Camera::LookAt(Point position, Point at, Vector up)
+	void Camera::lookAt(const Point& position, const Point& at, const Vector& up)
 	{
 		Vector zAxis = Normalize(position - at);
 		Vector xAxis = Normalize(Cross(up, zAxis));
@@ -35,13 +35,13 @@
 		m_viewMatrix = OrthoInverse(m_worldMatrix);
 	}
 	
-	void Camera::SetWorldMatrix(Matrix44& viewMatrix)
+	void Camera::setWorldMatrix(const Matrix44& viewMatrix)
 	{
 		m_worldMatrix = viewMatrix;
 		m_viewMatrix = OrthoInverse(m_worldMatrix);
 	}
 
-	void Camera::Update()
+	void Camera::update()
 	{
 		float fov = Deg2Rad(m_frustum.m_fieldOfView);
 		float aspectRatio = m_frustum.m_aspectRatio;

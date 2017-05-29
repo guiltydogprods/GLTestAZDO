@@ -61,8 +61,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		TestAZDOApp *pApp = initStack.newObject<TestAZDOApp>(SCREEN_WIDTH, SCREEN_HEIGHT, allocator, initStack);
 		while (!glfwWindowShouldClose(window))
 		{
-			pApp->Update();
-			pApp->Render();
+			pApp->update();
+			pApp->render();
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}
