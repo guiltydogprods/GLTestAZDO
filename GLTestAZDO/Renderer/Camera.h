@@ -27,7 +27,16 @@
 		
 		void setPosition( float x, float y,  float z );
 		
+		inline void setPosition(const Point& position)				{	m_worldMatrix.SetAxisW(position.GetVector4());	}
 
+		inline const Frustum& getFrustum() const					{	return m_frustum;								}
+		inline Vector	getRightVector() 							{	return Vector(m_worldMatrix.GetAxisX());		}
+		inline Vector	getUpVector()								{	return Vector(m_worldMatrix.GetAxisY());		}
+		inline Vector	getForwardVector()							{	return Vector(m_worldMatrix.GetAxisZ());		}
+		inline Point	getPosition() 								{	return Point(m_worldMatrix.GetAxisW());			}
+		inline Matrix44 getViewMatrix()								{	return m_viewMatrix;							}
+		inline Matrix44 getWorldMatrix()							{	return m_worldMatrix;							}
+		inline Matrix44 getProjectionMatrix()						{	return m_projectionMatrix;						}
 
 	protected:
 		Frustum		m_frustum;
