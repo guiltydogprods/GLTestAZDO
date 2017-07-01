@@ -4,6 +4,10 @@
 const uint32_t SCREEN_WIDTH = 1920;
 const uint32_t SCREEN_HEIGHT = 1080;
 
+extern "C" {
+	_declspec(dllexport) uint32_t NvOptimusEnablement = 0x00000001;
+}
+
 void error_callback(int error, const char* description)
 {
 	fputs(description, stderr);
