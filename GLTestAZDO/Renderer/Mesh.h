@@ -1,10 +1,12 @@
 //
-//  MeshResource.h
-//  ion
-//
-//  Created by Claire Rogers on 28/04/2013.
-//  Copyright (c) 2013 Spinning Head Software Ltd. All rights reserved.
-//
+/*
+ *  Mesh.h
+ *  ion::Engine
+ *
+ *  Created by Claire Rogers on 01/07/2013.
+ *  Copyright 2013 Guilty Dog Productions Ltd. All rights reserved.
+ *
+ */
 
 #pragma once
 

@@ -1,10 +1,12 @@
 //
-//  FMath.h
-//  ion
-//
-//  Created by Claire Rogers on 22/10/2012.
-//  Copyright (c) 2013 Guilty Dog Productions Ltd. All rights reserved.
-//
+/*
+ *  FMath.h
+ *  ion::Engine
+ *
+ *  Created by Claire Rogers on 10/09/2005.
+ *  Copyright (c) 2013 Guilty Dog Productions Ltd. All rights reserved.
+ *
+ */
 
 #ifndef ion_FMath_h
 #define ion_FMath_h

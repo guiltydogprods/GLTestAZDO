@@ -3,7 +3,7 @@
  *  ion::Engine
  *
  *  Created by Claire Rogers on 27/02/2006.
- *  Copyright 2006 Digital Frelp. All rights reserved.
+ *  Copyright (c) 2013 Guilty Dog Productions Ltd. All rights reserved.
  *
  */
 #include "stdafx.h"

@@ -1,11 +1,12 @@
 /*
  *  File.h
- *  RTRacing
+ *  ion::Engine
  *
- *  Created by Claire Rogers on 22/07/2006.
- *  Copyright 2006 __MyCompanyName__. All rights reserved.
+ *  Created by Claire Rogers on 01/07/2013.
+ *  Copyright 2013 Guilty Dog Productions Ltd. All rights reserved.
  *
  */
+
 #pragma once
 
 #include "ScopeStackAllocator.h"

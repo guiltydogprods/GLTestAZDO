@@ -1,10 +1,11 @@
-//
-//  MeshResource.cpp
-//  ion
-//
-//  Created by Claire Rogers on 28/04/2013.
-//  Copyright (c) 2013 Spinning Head Software Ltd. All rights reserved.
-//
+/*
+ *  Mesh.cpp
+ *  ion::Engine
+ *
+ *  Created by Claire Rogers on 01/07/2013.
+ *  Copyright 2013 Guilty Dog Productions Ltd. All rights reserved.
+ *
+ */
 
 #include "stdafx.h"
 #include "Mesh.h"
@@ -60,7 +61,7 @@ void CheckGLError();
 		
 	Mesh::~Mesh()
 	{
-		fprintf(stdout, "Mesh dtor\n", glGetString(GL_VENDOR));
+		fprintf(stdout, "Mesh dtor\n");
 		glDeleteBuffers(1, &m_indexBuffer);
 		glDeleteVertexArrays(1, &m_vertexArrayObject);
 		glDeleteBuffers(1, &m_vertexBuffer);

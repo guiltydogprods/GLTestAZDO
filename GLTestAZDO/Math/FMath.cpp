@@ -1,9 +1,11 @@
-//
-//  FMath.cpp
-//  ion
-//
-//  Created by Claire Rogers on 06/11/2013.
-//  Copyright (c) 2013 Guilty Dog Productions Ltd. All rights reserved.
-//
+/*
+ *  FMath.cpp
+ *  ion::Engine
+ *
+ *  Created by Claire Rogers on 10/09/2005.
+ *  Copyright (c) 2013 Guilty Dog Productions Ltd. All rights reserved.
+ *
+ */
+
 #include "stdafx.h"
 #include "FMath.h"

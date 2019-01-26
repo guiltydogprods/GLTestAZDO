@@ -3,7 +3,7 @@
  *  ionEngine
  *
  *  Created by Claire Rogers on 22/10/08.
- *  Copyright 2008 __MyCompanyName__. All rights reserved.
+ *  Copyright (c) 2013 Guilty Dog Productions Ltd. All rights reserved.
  *
  */
 #pragma once

@@ -1,3 +1,12 @@
+/*
+ *  GLTestAZDO.cpp
+ *  GLTestAZDO
+ *
+ *  Created by Claire Rogers on 01/07/2013.
+ *  Copyright 2013 Guilty Dog Productions Ltd. All rights reserved.
+ *
+ */
+
 #include "stdafx.h"
 #include "GLTestAZDO.h"
 #include "Math/FMath.h"
@@ -181,6 +190,7 @@ TestAZDOApp::TestAZDOApp(uint32_t screenWidth, uint32_t screenHeight, LinearAllo
 
 	glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
+
 }
 
 TestAZDOApp::~TestAZDOApp()
